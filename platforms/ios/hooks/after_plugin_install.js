@@ -31,7 +31,7 @@ module.exports = function(context) {
 			return ios;
 		}
 		var script_path = path.join(path.dirname(context.scriptLocation), 'add-bridging_header.rb');
-		var child = et.Element('hook', {type: "after_prepare", src: script_path});
+		var child = et.Element('hook', {type: "after_prepare", src: path.relative(context.opts.projectRoot, script_path)});
 		getParent('platform', 'ios').append(child);
 		
 		fs.writeFileSync(configFile, xml.write({indent: 4}), 'utf-8');
