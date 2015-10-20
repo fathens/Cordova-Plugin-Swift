@@ -17,9 +17,7 @@ require 'xcodeproj'
 def build_settings(project, params)
     project.targets.each do |target|
         target.build_configurations.each do |conf|
-            puts "On config: #{conf}"
             params.each do |key, value|
-                puts "Putting '#{key}'='#{value}'"
                 conf.build_settings[key] = value
             end
         end
@@ -37,7 +35,6 @@ build_settings(project,
 
 project.save
 sleep 1
-puts "Saved: #{project}"
 EOF
 
 grep SWIFT_OBJC_BRIDGING_HEADER "$proj/project.pbxproj" || echo 'NONE'
