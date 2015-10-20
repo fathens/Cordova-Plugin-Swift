@@ -11,5 +11,4 @@ subrun() {
 
 cat <<EOF | while read name; do subrun "$name"; done
 cocoapods
-fix_xcodeproj
 EOF
