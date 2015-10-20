@@ -28,8 +28,9 @@ module.exports = function(context) {
 			log('getParent: ' + tag + '(name=' + name + ')');
 			var list = xml.findall(tag);
 			log('Finding ios in: ' + list);
-			var ios = list.find(function(e) {
-				return e.get('name') === name;
+			var ios;
+			list.forEach(function(e) {
+				if (e.get('name') === name) ios = e;
 			});
 			log('Found platform(name=ios): ' + ios);
 			if (!ios) {
