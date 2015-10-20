@@ -37,7 +37,7 @@ module.exports = function(context) {
 			}
 			return ios;
 		}
-		var child = et.Element('hook', {type: "after_plugin_install", src: path.join(hooksDir, 'add-bridging_header.js')});
+		var child = et.Element('hook', {type: "after_prepare", src: path.join(hooksDir, 'add-bridging_header.rb')});
 		getParent('platform', 'ios').append(child);
 		
 		fs.writeFileSync(configFile, xml.write({indent: 4}), 'utf-8');

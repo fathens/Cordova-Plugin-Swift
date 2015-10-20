@@ -1,11 +1,10 @@
 #!/usr/bin/env ruby
 
+require 'rexml/document'
 require 'xcodeproj'
 
-header_file=$1
-
 puts "################################"
-puts "#### Add Swift Bridging Header: $header_file"
+puts "#### Add Swift Bridging Header"
 
 proj = Dir.glob('*.xcodeproj')
 puts "Using #{proj}"
@@ -16,10 +15,14 @@ union_file = project.targets.first.build_configurations.first.build_settings["SW
 puts "Fixing #{union_file}"
 
 File.open(union_file.path, "a") { |dst|
-  ARGV.each { |src_path|
-    puts "Appending #{src_path}"
-    File.open(src_path) { |src|
-        dst << src.read
+  ENV['CORDOVA_PLUGINS'].split(',').each { |plugin|
+    xml = REXML::Document.new(open("plugins/#{plugin}/plugin.xml"))
+    xml.elements.each('root/platform/bridging-header-file') { |elm|
+      src_path = elm.attributes['src']
+      puts "Appending #{src_path}"
+      File.open(src_path) { |src|
+          dst << src.read
+      }
     }
   }
 }
