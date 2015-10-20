@@ -24,6 +24,7 @@ module.exports = function(context) {
 		var xml = XmlHelpers.parseElementtreeSync(configFile);
 		
 		var getParent = function(tag, name) {
+			log('getParent: ' + tag + '(name=' + name + ')');
 			var list = xml.findall('/' + tag);
 			log('Finding ios in: ' + list);
 			var ios = list.find(function(e) {
