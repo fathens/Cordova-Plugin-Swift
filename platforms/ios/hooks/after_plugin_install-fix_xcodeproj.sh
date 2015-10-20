@@ -36,7 +36,7 @@ build_settings(project,
 )
 
 project.save
-project.close
+sleep 1
 puts "Saved: #{project}"
 EOF
 
