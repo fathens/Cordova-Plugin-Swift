@@ -32,7 +32,7 @@ module.exports = function(context) {
 			}
 			return ios;
 		}
-		var child = et.XML('<hook type="after_plugin_add" src="' + path.join(hooksDir, 'add-bridging_header.sh') + " />");
+		var child = et.XML('<hook type="after_plugin_add" src="' + path.join(hooksDir, 'add-bridging_header.sh') + '" />');
 		getParent('platform', 'ios').append(child);
 		
 		fs.writeFileSync(configFile, xml.write({indent: 4}), 'utf-8');
