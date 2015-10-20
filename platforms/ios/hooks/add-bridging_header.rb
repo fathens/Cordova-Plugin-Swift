@@ -6,7 +6,7 @@ require 'xcodeproj'
 puts "################################"
 puts "#### pod install"
 
-system "pod install"
+system "(cd platforms/ios && pod install)"
 
 puts "################################"
 puts "#### Add Swift Bridging Header"
