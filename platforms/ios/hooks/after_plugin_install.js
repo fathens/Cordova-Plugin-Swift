@@ -45,7 +45,7 @@ module.exports = function(context) {
 		if (!target) target = "8.0";
 		
 		var podfile = path.join(context.opts.projectRoot, 'platforms', 'ios', 'Podfile');
-		fs.writeFileSync(file_path, "platform :ios,'" + target + "'\n\n");
+		fs.writeFileSync(podfile, "platform :ios,'" + target + "'\n\n");
 	}
 
 	var main = function() {
