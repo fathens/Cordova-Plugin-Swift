@@ -41,3 +41,4 @@ puts "Saved: #{project}"
 EOF
 
 sleep 5
+grep SWIFT_OBJC_BRIDGING_HEADER "$proj"
