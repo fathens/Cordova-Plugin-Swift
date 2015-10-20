@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 var child_process = require('child_process');
 
+function log(msg) {
+	process.stdout.write(msg);
+}
+
 module.exports = function(context) {
 	var fs = context.requireCordovaModule('fs');
 	var path = context.requireCordovaModule('path');
@@ -21,12 +25,13 @@ module.exports = function(context) {
 		
 		var getParent = function(tag, name) {
 			var list = xml.findall('/' + tag);
+			log('Finding ios in: ' + list);
 			var ios = list.find(function(e) {
 				return e.get('name') === name;
 			});
-			process.stdout.write('Found platform(name=ios): ' + ios);
+			log('Found platform(name=ios): ' + ios);
 			if (!ios) {
-				process.stdout.write('Creating tag: ' + tag + '(name=' + name + ')');
+				log('Creating tag: ' + tag + '(name=' + name + ')');
 				ios = el.makeelement(tag, {name: name});
 				xml.append(ios);
 			}
@@ -39,7 +44,7 @@ module.exports = function(context) {
 	}
 
 	var main = function() {
-		process.stdout.write("################################ Start preparing\n");
+		log("################################ Start preparing\n");
 		addHook();
 
 		var script = path.join(hooksDir, 'after_plugin_install.sh');
@@ -49,12 +54,12 @@ module.exports = function(context) {
 			if (error) {
 				deferral.reject(error);
 			} else {
-				process.stdout.write("################################ Finish preparing\n\n");
+				log("################################ Finish preparing\n\n");
 				deferral.resolve();
 			}
 		});
 		child.stdout.on('data', function(data) {
-			process.stdout.write(data);
+			log(data);
 		});
 		child.stderr.on('data', function(data) {
 			process.stderr.write(data);
