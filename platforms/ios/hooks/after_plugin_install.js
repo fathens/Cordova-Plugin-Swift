@@ -14,12 +14,6 @@ module.exports = function(context) {
 
 	var configFile = path.join(context.opts.projectRoot, 'config.xml');
 	var xml = XmlHelpers.parseElementtreeSync(configFile);
-	
-	var make_platform_dir = function(base) {
-		return path.join(base, 'platforms', 'ios');
-	}
-	var pluginDir = path.join('plugins', context.opts.plugin.id);
-	var hooksDir = path.join(make_platform_dir(pluginDir), 'hooks');
 
 	var addHook = function() {
 		var getParent = function(tag, name) {
@@ -36,7 +30,8 @@ module.exports = function(context) {
 			}
 			return ios;
 		}
-		var child = et.Element('hook', {type: "after_prepare", src: path.join(hooksDir, 'add-bridging_header.rb')});
+		var script_path = path.join(path.dirname(context.scriptLocation), 'add-bridging_header.rb');
+		var child = et.Element('hook', {type: "after_prepare", src: script_path});
 		getParent('platform', 'ios').append(child);
 		
 		fs.writeFileSync(configFile, xml.write({indent: 4}), 'utf-8');
@@ -49,8 +44,8 @@ module.exports = function(context) {
 		});
 		if (!target) target = "8.0";
 		
-		var podfile = path.join(make_platform_dir(context.opts.projectRoot), 'Podfile');
-		fs.writeFileSync(file_path, "platform :ios,'" + target + "'\n\n"));
+		var podfile = path.join(context.opts.projectRoot, 'platforms', 'ios', 'Podfile');
+		fs.writeFileSync(file_path, "platform :ios,'" + target + "'\n\n");
 	}
 
 	var main = function() {
