@@ -18,6 +18,7 @@ def build_settings(project, params)
     project.targets.each do |target|
         target.build_configurations.each do |conf|
             params.each do |key, value|
+                puts "Putting '#{key}'='#{value}'"
                 conf.build_settings[key] = value
             end
         end
