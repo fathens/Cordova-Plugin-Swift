@@ -10,8 +10,6 @@ module.exports = function(context) {
 	var path = context.requireCordovaModule('path');
 	var deferral = context.requireCordovaModule('q').defer();
 	
-	log("Context: " + JSON.stringify(context, null, '\n'));
-
 	var make_platform_dir = function(base) {
 		return path.join(base, 'platforms', 'ios');
 	}
