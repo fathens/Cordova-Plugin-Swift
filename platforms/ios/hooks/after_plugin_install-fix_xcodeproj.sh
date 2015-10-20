@@ -38,3 +38,5 @@ build_settings(project,
 project.save
 puts "Saved: #{project}"
 EOF
+
+sleep 30
