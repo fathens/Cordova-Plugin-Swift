@@ -4,6 +4,11 @@ require 'rexml/document'
 require 'xcodeproj'
 
 puts "################################"
+puts "#### pod install"
+
+system "pod install"
+
+puts "################################"
 puts "#### Add Swift Bridging Header"
 
 proj = Dir.glob('platforms/ios/*.xcodeproj')[0]
@@ -40,6 +45,7 @@ def build_settings(project, params)
 end
 
 project = Xcodeproj::Project.open proj
+project.recrate_user_schemes
 
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
