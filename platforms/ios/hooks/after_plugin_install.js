@@ -9,20 +9,19 @@ module.exports = function(context) {
 	var fs = context.requireCordovaModule('fs');
 	var path = context.requireCordovaModule('path');
 	var deferral = context.requireCordovaModule('q').defer();
+	var XmlHelpers = context.requireCordovaModule("cordova-lib/src/util/xml-helpers");
+	var et = context.requireCordovaModule('elementtree');
+
+	var configFile = path.join(context.opts.projectRoot, 'config.xml');
+	var xml = XmlHelpers.parseElementtreeSync(configFile);
 	
 	var make_platform_dir = function(base) {
 		return path.join(base, 'platforms', 'ios');
 	}
 	var pluginDir = path.join('plugins', context.opts.plugin.id);
 	var hooksDir = path.join(make_platform_dir(pluginDir), 'hooks');
-	
+
 	var addHook = function() {
-		var XmlHelpers = context.requireCordovaModule("cordova-lib/src/util/xml-helpers");
-		var et = context.requireCordovaModule('elementtree');
-		
-		var configFile = path.join(context.opts.projectRoot, 'config.xml');
-		var xml = XmlHelpers.parseElementtreeSync(configFile);
-		
 		var getParent = function(tag, name) {
 			var list = xml.findall(tag);
 			var ios;
@@ -42,28 +41,24 @@ module.exports = function(context) {
 		
 		fs.writeFileSync(configFile, xml.write({indent: 4}), 'utf-8');
 	}
+	
+	var cocoapods = function() {
+		var target;
+		xml.findall('preference').forEach(function(e) {
+			if (e.get('name') === 'deployment-target') target = e.get('value');
+		});
+		if (!target) target = "8.0";
+		
+		var podfile = path.join(make_platform_dir(context.opts.projectRoot), 'Podfile');
+		fs.writeFileSync(file_path, "platform :ios,'" + target + "'\n\n"));
+	}
 
 	var main = function() {
-		log("################################ Start preparing\n");
+		log("################################ Start preparing");
 		addHook();
-
-		var script = path.join(context.opts.projectRoot, hooksDir, 'after_plugin_install.sh');
-		var child = child_process.execFile(script, [ context.opts.plugin.id ], {
-			cwd : make_platform_dir(context.opts.projectRoot)
-		}, function(error) {
-			if (error) {
-				deferral.reject(error);
-			} else {
-				log("################################ Finish preparing\n\n");
-				deferral.resolve();
-			}
-		});
-		child.stdout.on('data', function(data) {
-			log(data);
-		});
-		child.stderr.on('data', function(data) {
-			process.stderr.write(data);
-		});
+		cocoapods();
+		log("################################ Finish preparing\n");
+		deferral.resolve();
 	}
 	main();
 	return deferral.promise;
