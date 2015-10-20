@@ -34,7 +34,6 @@ build_settings(project,
 )
 
 project.save
-sleep 1
 EOF
 
 grep SWIFT_OBJC_BRIDGING_HEADER "$proj/project.pbxproj" || echo 'NONE'
