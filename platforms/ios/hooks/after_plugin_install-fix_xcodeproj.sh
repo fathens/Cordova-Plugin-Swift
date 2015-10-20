@@ -39,4 +39,4 @@ project.save
 puts "Saved: #{project}"
 EOF
 
-sleep 30
+sleep 5
