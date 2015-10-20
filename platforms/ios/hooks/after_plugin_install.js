@@ -26,7 +26,7 @@ module.exports = function(context) {
 		
 		var getParent = function(tag, name) {
 			log('getParent: ' + tag + '(name=' + name + ')');
-			var list = xml.getchildren('/' + tag);
+			var list = xml.findall(tag);
 			log('Finding ios in: ' + list);
 			var ios = list.find(function(e) {
 				return e.tag === tag && e.get('name') === name;
