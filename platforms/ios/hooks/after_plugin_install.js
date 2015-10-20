@@ -29,7 +29,7 @@ module.exports = function(context) {
 			var list = xml.findall(tag);
 			log('Finding ios in: ' + list);
 			var ios = list.find(function(e) {
-				return e.tag === tag && e.get('name') === name;
+				return e.get('name') === name;
 			});
 			log('Found platform(name=ios): ' + ios);
 			if (!ios) {
