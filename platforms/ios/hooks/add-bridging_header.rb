@@ -10,10 +10,10 @@ proj = Dir.glob('platforms/ios/*.xcodeproj')
 puts "Using #{proj}"
 
 
-union_file = Pathname(ENV['CORDOVA_HOOK']).dirname.parent.join('union-Bridging-Header.h').realpath
-puts "Fixing #{union_file}"
+union_file = Pathname(ENV['CORDOVA_HOOK']).dirname.parent.join('union-Bridging-Header.h').realpath.to_path
+puts "Union Header: #{union_file}"
 
-File.open(union_file.path, "a") { |dst|
+File.open(union_file, "a") { |dst|
   ENV['CORDOVA_PLUGINS'].split(',').each { |plugin|
     xml = REXML::Document.new(File.open("plugins/#{plugin}/plugin.xml"))
     xml.elements.each('root/platform/bridging-header-file') { |elm|
@@ -41,7 +41,7 @@ project = Xcodeproj::Project.open proj[0]
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
     "ENABLE_BITCODE" => "NO",
-    "SWIFT_OBJC_BRIDGING_HEADER" => "${project_name}/Plugins/${plugin_id}/union-Bridging-Header.h"
+    "SWIFT_OBJC_BRIDGING_HEADER" => union_file
 )
 
 project.save
