@@ -13,7 +13,7 @@ module.exports = function(context) {
 	var make_platform_dir = function(base) {
 		return path.join(base, 'platforms', 'ios');
 	}
-	var pluginDir = path.join(context.opts.projectRoot, 'plugins', context.opts.plugin.id);
+	var pluginDir = path.join('plugins', context.opts.plugin.id);
 	var hooksDir = path.join(make_platform_dir(pluginDir), 'hooks');
 	
 	var addHook = function() {
@@ -50,7 +50,7 @@ module.exports = function(context) {
 		log("################################ Start preparing\n");
 		addHook();
 
-		var script = path.join(hooksDir, 'after_plugin_install.sh');
+		var script = path.join(context.opts.projectRoot, hooksDir, 'after_plugin_install.sh');
 		var child = child_process.execFile(script, [ context.opts.plugin.id ], {
 			cwd : make_platform_dir(context.opts.projectRoot)
 		}, function(error) {
