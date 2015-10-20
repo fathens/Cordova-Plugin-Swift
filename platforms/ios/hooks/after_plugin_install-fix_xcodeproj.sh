@@ -35,7 +35,7 @@ build_settings(project,
     "SWIFT_OBJC_BRIDGING_HEADER" => "${project_name}/Plugins/${plugin_id}/union-Bridging-Header.h"
 )
 
-project.save
+project.save()
 puts "Saved: #{project}"
 EOF
 
