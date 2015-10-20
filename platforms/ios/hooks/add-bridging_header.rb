@@ -6,9 +6,8 @@ require 'xcodeproj'
 puts "################################"
 puts "#### Add Swift Bridging Header"
 
-proj = Dir.glob('platforms/ios/*.xcodeproj')
-puts "Using #{proj}"
-
+proj = Dir.glob('platforms/ios/*.xcodeproj')[0]
+puts "Editing #{proj}"
 
 union_file = Pathname(ENV['CORDOVA_HOOK']).dirname.parent.join('union-Bridging-Header.h').realpath.to_path
 puts "Union Header: #{union_file}"
@@ -36,7 +35,7 @@ def build_settings(project, params)
     end
 end
 
-project = Xcodeproj::Project.open proj[0]
+project = Xcodeproj::Project.open proj
 
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
