@@ -1,6 +1,11 @@
 #!/bin/bash
 set -eu
 
+echo "Here is $(pwd)"
+echo "Argument 1: $1"
+
+env | sort
+
 header_file=$1
 
 echo "################################"
