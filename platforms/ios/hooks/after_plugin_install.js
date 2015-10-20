@@ -14,8 +14,6 @@ module.exports = function(context) {
 
 	var configFile = path.join(context.opts.projectRoot, 'config.xml');
 	var xml = XmlHelpers.parseElementtreeSync(configFile);
-	
-	var platformDir = path.join(context.opts.projectRoot, 'platforms', 'ios')
 
 	var addHook = function() {
 		var getParent = function(tag, name) {
@@ -46,7 +44,7 @@ module.exports = function(context) {
 		});
 		if (!target) target = "8.0";
 		
-		var podfile = path.join(platformDir, 'Podfile');
+		var podfile = path.join(context.opts.projectRoot, 'platforms', 'ios', 'Podfile');
 		fs.writeFileSync(podfile, "platform :ios,'" + target + "'\n\n");
 	}
 
@@ -54,23 +52,8 @@ module.exports = function(context) {
 		log("################################ Start preparing");
 		addHook();
 		cocoapods();
-
-		var child = child_process.execFile('pod', ['install'], {
-			cwd : platformDir
-		}, function(error) {
-			if (error) {
-				deferral.reject(error);
-			} else {
-				process.stdout.write("################################ Finish preparing\n\n")
-				deferral.resolve();
-			}
-		});
-		child.stdout.on('data', function(data) {
-			process.stdout.write(data);
-		});
-		child.stderr.on('data', function(data) {
-			process.stderr.write(data);
-		});
+		log("################################ Finish preparing\n");
+		deferral.resolve();
 	}
 	main();
 	return deferral.promise;
