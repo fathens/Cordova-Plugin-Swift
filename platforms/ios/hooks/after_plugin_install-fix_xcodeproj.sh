@@ -36,5 +36,5 @@ build_settings(project,
 )
 
 project.save
-puts "Saved: #{proj}"
+puts "Saved: #{project}"
 EOF
