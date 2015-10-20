@@ -17,7 +17,7 @@ module.exports = function(context) {
 		var et = context.requireCordovaModule('elementtree');
 		
 		var configFile = path.join(context.opts.projectRoot, 'config.xml');
-		var xml = XmlHelpers.parseElementtreeSync(projectConfigurationFile);
+		var xml = XmlHelpers.parseElementtreeSync(configFile);
 		
 		var getParent = function(tag, name) {
 			var list = xml.findall('/' + tag);
