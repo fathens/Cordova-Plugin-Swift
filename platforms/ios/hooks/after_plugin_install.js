@@ -35,7 +35,7 @@ module.exports = function(context) {
 			log('Found platform(name=ios): ' + ios);
 			if (!ios) {
 				log('Creating tag: ' + tag + '(name=' + name + ')');
-				ios = et.makeelement(tag, {name: name});
+				ios = et.Element(tag, {name: name});
 				xml.append(ios);
 			}
 			return ios;
