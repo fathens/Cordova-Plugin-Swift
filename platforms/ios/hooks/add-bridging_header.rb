@@ -45,7 +45,7 @@ def build_settings(project, params)
 end
 
 project = Xcodeproj::Project.open proj
-project.recrate_user_schemes
+project.recreate_user_schemes
 
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
