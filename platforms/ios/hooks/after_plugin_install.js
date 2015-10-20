@@ -2,7 +2,7 @@
 var child_process = require('child_process');
 
 function log(msg) {
-	process.stdout.write(msg);
+	process.stdout.write(msg + '\n');
 }
 
 module.exports = function(context) {
@@ -22,6 +22,7 @@ module.exports = function(context) {
 		
 		var configFile = path.join(context.opts.projectRoot, 'config.xml');
 		var xml = XmlHelpers.parseElementtreeSync(configFile);
+		log('Processing XML: ' + xml);
 		
 		var getParent = function(tag, name) {
 			log('getParent: ' + tag + '(name=' + name + ')');
