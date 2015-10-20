@@ -13,15 +13,19 @@ union_file = Pathname(ENV['CORDOVA_HOOK']).dirname.parent.join('union-Bridging-H
 puts "Union Header: #{union_file}"
 
 File.open(union_file, "a") { |dst|
-  ENV['CORDOVA_PLUGINS'].split(',').each { |plugin|
-    xml = REXML::Document.new(File.open("plugins/#{plugin}/plugin.xml"))
-    xml.elements.each('root/platform/bridging-header-file') { |elm|
-      src_path = elm.attributes['src']
-      puts "Appending #{src_path}"
-      File.open(src_path) { |src|
-          dst << src.read
+  Dir.glob('plugins/*/plugin.xml').each { |xmlFile|
+    begin
+      xml = REXML::Document.new(File.open(xmlFile))
+      xml.elements.each('plugin/platform/bridging-header-file') { |elm|
+        src_path = Pathname(xmlFile).dirname.join(elm.attributes['src']).to_path
+        puts "Appending #{src_path}"
+        File.open(src_path) { |src|
+            dst << src.read
+        }
       }
-    }
+    rescue => ex
+      puts "Error on '#{xmlFile}': #{ex.message}"
+    end
   }
 }
 
