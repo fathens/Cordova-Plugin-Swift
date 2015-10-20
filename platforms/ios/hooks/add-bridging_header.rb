@@ -6,17 +6,17 @@ require 'xcodeproj'
 puts "################################"
 puts "#### Add Swift Bridging Header"
 
-proj = Dir.glob('*.xcodeproj')
+proj = Dir.glob('platforms/ios/*.xcodeproj')
 puts "Using #{proj}"
 
-project = Xcodeproj::Project.open proj
+project = Xcodeproj::Project.open proj[0]
 
 union_file = project.targets.first.build_configurations.first.build_settings["SWIFT_OBJC_BRIDGING_HEADER"]
 puts "Fixing #{union_file}"
 
 File.open(union_file.path, "a") { |dst|
   ENV['CORDOVA_PLUGINS'].split(',').each { |plugin|
-    xml = REXML::Document.new(open("plugins/#{plugin}/plugin.xml"))
+    xml = REXML::Document.new(File.open("plugins/#{plugin}/plugin.xml"))
     xml.elements.each('root/platform/bridging-header-file') { |elm|
       src_path = elm.attributes['src']
       puts "Appending #{src_path}"
