@@ -26,10 +26,10 @@ module.exports = function(context) {
 		
 		var getParent = function(tag, name) {
 			log('getParent: ' + tag + '(name=' + name + ')');
-			var list = xml.findall('/' + tag);
+			var list = xml.getchildren('/' + tag);
 			log('Finding ios in: ' + list);
 			var ios = list.find(function(e) {
-				return e.get('name') === name;
+				return e.tag === tag && e.get('name') === name;
 			});
 			log('Found platform(name=ios): ' + ios);
 			if (!ios) {
