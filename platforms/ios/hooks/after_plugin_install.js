@@ -36,7 +36,7 @@ module.exports = function(context) {
 			if (!ios) {
 				log('Creating tag: ' + tag + '(name=' + name + ')');
 				ios = et.Element(tag, {name: name});
-				xml.append(ios);
+				xml.getroot.append(ios);
 			}
 			return ios;
 		}
