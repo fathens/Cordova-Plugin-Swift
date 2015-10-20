@@ -22,7 +22,7 @@ module.exports = function(context) {
 		
 		var configFile = path.join(context.opts.projectRoot, 'config.xml');
 		var xml = XmlHelpers.parseElementtreeSync(configFile);
-		log('Processing XML: ' + xml);
+		log('Processing XML: ' + JSON.stringify(xml));
 		
 		var getParent = function(tag, name) {
 			log('getParent: ' + tag + '(name=' + name + ')');
