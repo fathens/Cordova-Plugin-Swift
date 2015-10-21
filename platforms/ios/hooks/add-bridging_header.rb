@@ -16,7 +16,7 @@ platformDir = Pathname('platforms').join('ios')
 proj = Dir.glob(platformDir.join('*.xcodeproj').to_path)[0]
 puts "Editing #{proj}"
 
-plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.basename
+plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.basename
 
 union_file = Dir.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
 puts "Union Header: #{union_file}"
