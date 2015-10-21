@@ -36,9 +36,7 @@ module.exports = function(context) {
 						list.forEach(function(e) {
 							if (e.get('name') === name) ios = e;
 						});
-						log('Found platform(name=ios): ' + ios);
 						if (!ios) {
-							log('Creating tag: ' + tag + '(name=' + name + ')');
 							ios = et.Element(tag, {name: name});
 							xml.getroot().append(ios);
 						}
@@ -60,9 +58,9 @@ module.exports = function(context) {
 				 ],
 				function(err, result) {
 					if (err) {
-						deferral.reject();
+						deferral.reject(err);
 					} else {
-						deferral.resolve();
+						deferral.resolve(result);
 					}
 				});
 	}
