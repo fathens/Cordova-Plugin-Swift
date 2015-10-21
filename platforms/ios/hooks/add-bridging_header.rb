@@ -11,11 +11,11 @@ union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id)
 puts "Union Header: #{union_file}"
 
 File.open(union_file, "a") { |dst|
-  Dir.glob('plugins/*/plugin.xml').each { |xmlFile|
+  Pathname.glob('plugins/*/plugin.xml').each { |xmlFile|
     begin
       xml = REXML::Document.new(File.open(xmlFile))
       xml.elements.each('plugin/platform/bridging-header-file') { |elm|
-        src_path = Pathname(xmlFile).dirname.join(elm.attributes['src'])
+        src_path = xmlFile.dirname.join(elm.attributes['src'])
         puts "Appending #{src_path}"
         File.open(src_path) { |src|
             dst << src.read
