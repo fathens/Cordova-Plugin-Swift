@@ -30,7 +30,7 @@ Pathname.glob(Pathname('plugins').join('*').join('plugin.xml')).each { |xmlFile|
 }
 
 File.open(union_file, "w") { |dst|
-  dst << lines.uniq.join('\n')
+  dst << lines.uniq.join
 }
 
 def build_settings(project, params)
