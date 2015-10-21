@@ -10,7 +10,7 @@ puts "Editing #{proj}"
 
 plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.basename
 
-union_file = Dir.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
+union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
 puts "Union Header: #{union_file}"
 
 File.open(union_file, "a") { |dst|
@@ -46,7 +46,7 @@ project.recreate_user_schemes
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
     "ENABLE_BITCODE" => "NO",
-    "SWIFT_OBJC_BRIDGING_HEADER" => Pathname(union_file).relative_path_from(platformDir)
+    "SWIFT_OBJC_BRIDGING_HEADER" => union_file.relative_path_from(platformDir)
 )
 
 project.save
