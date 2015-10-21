@@ -49,6 +49,7 @@ project = Xcodeproj::Project.open(proj)
 project.recreate_user_schemes
 
 build_settings(project,
+"LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
 "OTHER_LDFLAGS" => "\$(inherited)",
 "ENABLE_BITCODE" => "NO",
 "SWIFT_OBJC_BRIDGING_HEADER" => union_file.relative_path_from(platformDir)
