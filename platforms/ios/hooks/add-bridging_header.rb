@@ -18,7 +18,7 @@ puts "Editing #{proj}"
 
 plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.basename
 
-union_file = Dir.glob(platformDir.join('*').join('Plugins').join('*').join('union-Bridging-Header.h'))[0]
+union_file = Dir.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
 puts "Union Header: #{union_file}"
 
 File.open(union_file, "a") { |dst|
