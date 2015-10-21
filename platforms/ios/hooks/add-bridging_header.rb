@@ -29,7 +29,7 @@ Pathname.glob(Pathname('plugins').join('*').join('plugin.xml')).each { |xmlFile|
   end
 }
 
-File.open(union_file) { |dst|
+File.open(union_file, "w") { |dst|
   dst << lines.uniq.join('\n')
 }
 
