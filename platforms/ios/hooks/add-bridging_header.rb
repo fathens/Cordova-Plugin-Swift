@@ -3,14 +3,6 @@
 require 'rexml/document'
 require 'xcodeproj'
 
-puts "################################"
-puts "#### pod install"
-
-system "(cd platforms/ios && pod install)"
-
-puts "################################"
-puts "#### Add Swift Bridging Header"
-
 platformDir = Pathname('platforms').join('ios')
 
 proj = Dir.glob(platformDir.join('*.xcodeproj').to_path)[0]
