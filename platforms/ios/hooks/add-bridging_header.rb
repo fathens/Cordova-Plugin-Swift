@@ -11,10 +11,14 @@ system "(cd platforms/ios && pod install)"
 puts "################################"
 puts "#### Add Swift Bridging Header"
 
-proj = Dir.glob('platforms/ios/*.xcodeproj')[0]
+platformDir = Pathname('platforms').join('ios')
+
+proj = Dir.glob(platformDir.join('*.xcodeproj').to_path)[0]
 puts "Editing #{proj}"
 
-union_file = Pathname(ENV['CORDOVA_HOOK']).dirname.parent.join('union-Bridging-Header.h').realpath.to_path
+plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.basename
+
+union_file = Dir.glob(platformDir.join('*').join('Plugins').join('*').join('union-Bridging-Header.h'))[0]
 puts "Union Header: #{union_file}"
 
 File.open(union_file, "a") { |dst|
@@ -50,7 +54,7 @@ project.recreate_user_schemes
 build_settings(project,
     "OTHER_LDFLAGS" => "\$(inherited)",
     "ENABLE_BITCODE" => "NO",
-    "SWIFT_OBJC_BRIDGING_HEADER" => union_file
+    "SWIFT_OBJC_BRIDGING_HEADER" => Pathname(union_file).relative_path_from(platformDir)
 )
 
 project.save
