@@ -7,18 +7,15 @@ platformDir = Pathname('platforms').join('ios')
 
 plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.basename
 
-union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
-puts "Union Header: #{union_file}"
-
 lines = []
-Pathname.glob('plugins/*/plugin.xml').each { |xmlFile|
+Pathname.glob(Pathname('plugins').join('*').join('plugin.xml')).each { |xmlFile|
   begin
     xml = REXML::Document.new(File.open(xmlFile))
     xml.elements.each('plugin/platform/bridging-header-file') { |elm|
       src_path = xmlFile.dirname.join(elm.attributes['src'])
       puts "Appending #{src_path}"
       File.readlines(src_path) { |line|
-          if line.length > 0 then
+          if !(line.empty?) then
             lines << line
           end
       }
@@ -27,6 +24,9 @@ Pathname.glob('plugins/*/plugin.xml').each { |xmlFile|
     puts "Error on '#{xmlFile}': #{ex.message}"
   end
 }
+
+union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
+puts "Union Header: #{union_file}: #{lines}"
 File.open(union_file, "a") { |dst|
   dst << lines.uniq.join('\n')
 }
