@@ -5,9 +5,6 @@ require 'xcodeproj'
 
 platformDir = Pathname('platforms').join('ios')
 
-proj = Dir.glob(platformDir.join('*.xcodeproj').to_path)[0]
-puts "Editing #{proj}"
-
 plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.basename
 
 union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
@@ -40,7 +37,10 @@ def build_settings(project, params)
     end
 end
 
-project = Xcodeproj::Project.open proj
+proj = Pathname.glob(platformDir.join('*.xcodeproj').to_path)[0]
+puts "Editing #{proj}"
+
+project = Xcodeproj::Project.open(proj)
 project.recreate_user_schemes
 
 build_settings(project,
