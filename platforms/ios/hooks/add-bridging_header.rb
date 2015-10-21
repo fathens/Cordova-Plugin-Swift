@@ -10,21 +10,25 @@ plugin_id = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.basena
 union_file = Pathname.glob(platformDir.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
 puts "Union Header: #{union_file}"
 
-File.open(union_file, "a") { |dst|
-  Pathname.glob('plugins/*/plugin.xml').each { |xmlFile|
-    begin
-      xml = REXML::Document.new(File.open(xmlFile))
-      xml.elements.each('plugin/platform/bridging-header-file') { |elm|
-        src_path = xmlFile.dirname.join(elm.attributes['src'])
-        puts "Appending #{src_path}"
-        File.open(src_path) { |src|
-            dst << src.read
-        }
+lines = []
+Pathname.glob('plugins/*/plugin.xml').each { |xmlFile|
+  begin
+    xml = REXML::Document.new(File.open(xmlFile))
+    xml.elements.each('plugin/platform/bridging-header-file') { |elm|
+      src_path = xmlFile.dirname.join(elm.attributes['src'])
+      puts "Appending #{src_path}"
+      File.readlines(src_path) { |line|
+          if line.length > 0 then
+            lines << line
+          end
       }
-    rescue => ex
-      puts "Error on '#{xmlFile}': #{ex.message}"
-    end
-  }
+    }
+  rescue => ex
+    puts "Error on '#{xmlFile}': #{ex.message}"
+  end
+}
+File.open(union_file, "a") { |dst|
+  dst << lines.uniq.join('\n')
 }
 
 def build_settings(project, params)
