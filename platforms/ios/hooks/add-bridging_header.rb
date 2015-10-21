@@ -15,7 +15,7 @@ File.open(union_file, "a") { |dst|
     begin
       xml = REXML::Document.new(File.open(xmlFile))
       xml.elements.each('plugin/platform/bridging-header-file') { |elm|
-        src_path = Pathname(xmlFile).dirname.join(elm.attributes['src']).to_path
+        src_path = Pathname(xmlFile).dirname.join(elm.attributes['src'])
         puts "Appending #{src_path}"
         File.open(src_path) { |src|
             dst << src.read
