@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-var child_process = require('child_process');
 
-function log(msg) {
-	process.stdout.write(msg + '\n');
+var log = function() {
+	var args = Array.prototype.map.call(arguments, function(value) {
+		if (typeof value === 'string') {
+			return value;
+		} else {
+			return JSON.stringify(value, null, '\t')
+		}
+	});
+	process.stdout.write(args.join('') + '\n');
 }
 
 module.exports = function(context) {
-	var async = context.requireCordovaModule('cordova-lib/node_modules/request/node_modules/form-data/node_modules/async');
 	var fs = context.requireCordovaModule('fs');
 	var path = context.requireCordovaModule('path');
 	var deferral = context.requireCordovaModule('q').defer();
+	var async = context.requireCordovaModule(path.join('request', 'node_modules', 'form-data', 'node_modules', 'async'));
 	var XmlHelpers = context.requireCordovaModule("cordova-lib/src/util/xml-helpers");
 	var et = context.requireCordovaModule('elementtree');
 
