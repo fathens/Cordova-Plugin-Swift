@@ -1,15 +1,21 @@
 #!/usr/bin/env node
-var child_process = require('child_process');
 
-function log(msg) {
-	process.stdout.write(msg + '\n');
+var log = function() {
+	var args = Array.prototype.map.call(arguments, function(value) {
+		if (typeof value === 'string') {
+			return value;
+		} else {
+			return JSON.stringify(value, null, '\t')
+		}
+	});
+	process.stdout.write(args.join('') + '\n');
 }
 
 module.exports = function(context) {
-	var async = context.requireCordovaModule('cordova-lib/node_modules/request/node_modules/form-data/node_modules/async');
 	var fs = context.requireCordovaModule('fs');
 	var path = context.requireCordovaModule('path');
 	var deferral = context.requireCordovaModule('q').defer();
+	var async = context.requireCordovaModule(path.join('request', 'node_modules', 'form-data', 'node_modules', 'async'));
 	var XmlHelpers = context.requireCordovaModule("cordova-lib/src/util/xml-helpers");
 	var et = context.requireCordovaModule('elementtree');
 
@@ -17,7 +23,7 @@ module.exports = function(context) {
 		var configFile = path.join(context.opts.projectRoot, 'config.xml');
 		var xml = XmlHelpers.parseElementtreeSync(configFile);
 		
-		async.waterfall(
+		async.parallel(
 				[
 				function(next) {
 					var target;
@@ -30,7 +36,7 @@ module.exports = function(context) {
 					fs.writeFile(podfile, "platform :ios,'" + target + "'\n\n", next);
 				},
 				function(next) {
-					var getParent = function(tag, name) {
+					var platform = (function(tag, name) {
 						var list = xml.findall(tag);
 						var ios;
 						list.forEach(function(e) {
@@ -41,10 +47,14 @@ module.exports = function(context) {
 							xml.getroot().append(ios);
 						}
 						return ios;
+					})('platform', 'ios');
+					
+					var addHook = function(name, ext) {
+						var script_path = path.join(path.dirname(context.scriptLocation), 'global', [name, ext].join('.'));
+						var child = et.Element('hook', {type: name, src: path.relative(context.opts.projectRoot, script_path)});
+						platform.append(child);
 					}
-					var script_path = path.join(path.dirname(context.scriptLocation), 'add-bridging_header.rb');
-					var child = et.Element('hook', {type: "after_prepare", src: path.relative(context.opts.projectRoot, script_path)});
-					getParent('platform', 'ios').append(child);
+					addHook('after_prepare', 'rb');
 					
 					fs.writeFile(configFile, xml.write({indent: 4}), 'utf-8', next);
 				}
@@ -52,12 +62,13 @@ module.exports = function(context) {
 	}
 
 	var main = function() {
-		async.waterfall(
+		async.parallel(
 				[
 				byConfigXml
-				 ],
+				],
 				function(err, result) {
 					if (err) {
+						log(err);
 						deferral.reject(err);
 					} else {
 						deferral.resolve(result);
