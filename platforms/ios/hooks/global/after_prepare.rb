@@ -7,19 +7,19 @@ $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
 def plugin_id
-  curPlugin = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.dirname.join('plugin.xml')
-  curXml = REXML::Document.new(File.open(curPlugin))
-  return curXml.elements['plugin'].attributes['id']
+  file = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.dirname.join('plugin.xml')
+  xml = REXML::Document.new(File.open(file))
+  xml.elements['plugin'].attributes['id']
 end
 
 class AllPlugins
-  @header_files
-  @pods
-  @union_file
+  attr_reader :union_header
+  
   def initialize
+    @union_header = Pathname.glob($PLATFORM_DIR.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
     @header_files = []
     @pods = []
-    @union_file = Pathname.glob($PLATFORM_DIR.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
+    
     Pathname.glob($PROJECT_DIR.join('plugins').join('*').join('plugin.xml')).each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
@@ -35,10 +35,6 @@ class AllPlugins
     }
   end
   
-  def union_file
-    return @union_file
-  end
-  
   def append_union_header
     lines = []
     @header_files.each { |file|
@@ -48,8 +44,8 @@ class AllPlugins
       }
     }
 
-    puts "Union Header: #{union_file}"
-    File.open(union_file, "w+") { |dst|
+    puts "Union Header: #{union_header}"
+    File.open(union_header, "w+") { |dst|
       lines.concat dst.readlines
       dst << lines.uniq.join
     }
@@ -76,7 +72,8 @@ class AllPlugins
 end
 
 class FixXcodeproj
-  @project
+  attr_reader :project
+  
   def initialize(file)
     puts "Editing #{file}"
     
@@ -92,10 +89,6 @@ class FixXcodeproj
         end
       end
     end
-  end
-  
-  def save
-    @project.save
   end
 end
 
@@ -114,7 +107,7 @@ if __FILE__ == $0
   "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
   "OTHER_LDFLAGS" => "\$(inherited)",
   "ENABLE_BITCODE" => "NO",
-  "SWIFT_OBJC_BRIDGING_HEADER" => plugins.union_file.relative_path_from($PLATFORM_DIR)
+  "SWIFT_OBJC_BRIDGING_HEADER" => plugins.union_header.relative_path_from($PLATFORM_DIR)
   )
-  xcode.save
+  xcode.project.save
 end
