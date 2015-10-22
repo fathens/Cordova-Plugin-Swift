@@ -42,7 +42,7 @@ module.exports = function(context) {
 						}
 						return ios;
 					}
-					var script_path = path.join(path.dirname(context.scriptLocation), 'after_prepare.rb');
+					var script_path = path.join(path.dirname(context.scriptLocation), 'global', 'after_prepare.rb');
 					var child = et.Element('hook', {type: "after_prepare", src: path.relative(context.opts.projectRoot, script_path)});
 					getParent('platform', 'ios').append(child);
 					
