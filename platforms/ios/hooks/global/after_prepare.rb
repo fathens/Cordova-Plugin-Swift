@@ -106,7 +106,6 @@ if __FILE__ == $0
   xcode.build_settings(
   "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
   "OTHER_LDFLAGS" => "\$(inherited)",
-  "ENABLE_BITCODE" => "NO",
   "SWIFT_OBJC_BRIDGING_HEADER" => plugins.union_header.relative_path_from($PLATFORM_DIR)
   )
   xcode.project.save
