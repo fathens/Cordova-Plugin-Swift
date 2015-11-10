@@ -21,21 +21,6 @@ module.exports = function(context) {
 	var XmlHelpers = context.requireCordovaModule("cordova-lib/src/util/xml-helpers");
 	var et = context.requireCordovaModule('elementtree');
 
-	var installDeps = function(next) {
-		async.forEachSeries(['xcodeproj', 'cocoapods'], function(name, next) {
-			log('Checking installed ', name);
-			child_process.exec('gem which ' + name, function(err, stdout, stderr) {
-				if (!stdout) {
-					log('Installing gem ', name);
-					child_process.exec('gem install ' + name, next);
-				} else {
-					log(name, ' is already installed.');
-					next();
-				}
-			});
-		}, next);
-	}
-	
 	var byConfigXml = function(next) {
 		var configFile = path.join(context.opts.projectRoot, 'config.xml');
 		var xml = XmlHelpers.parseElementtreeSync(configFile);
@@ -81,7 +66,6 @@ module.exports = function(context) {
 	var main = function() {
 		async.parallel(
 				[
-				installDeps,
 				byConfigXml
 				],
 				function(err, result) {
