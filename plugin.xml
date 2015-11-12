@@ -11,7 +11,6 @@
     <platform name="ios">
         <header-file src="platforms/ios/union-Bridging-Header.h"/>
 
-        <hook type="after_plugin_install" src="platforms/ios/hooks/after_plugin_install.js"/>
-        <hook type="before_plugin_uninstall" src="platforms/ios/hooks/before_plugin_uninstall.js"/>
+        <hook type="after_prepare" src="platforms/ios/hooks/global/after_prepare.rb"/>
     </platform>
 </plugin>
