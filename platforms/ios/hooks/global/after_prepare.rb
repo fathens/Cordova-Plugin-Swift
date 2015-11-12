@@ -51,10 +51,22 @@ class AllPlugins
     }
   end
   
-  def append_podfile
+  def generate_podfile
+    def ios_version
+      config_file = $PROJECT_DIR.join('config.xml')
+      xml = REXML::Document.new(File.open(config_file))
+      target = xml.elements["widget/preference[@name='deployment-target']"]
+      if target != nil then
+        target.attributes['value']
+      else
+        '9.0'
+      end
+    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
-    File.open(podfile, "a") { |dst|
+    File.open(podfile, "w") { |dst|
+      dst.puts "platform :ios,'#{ios_version}'"
+      dst.puts()
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
@@ -93,7 +105,7 @@ end
 if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.append_union_header
-  plugins.append_podfile
+  plugins.generate_podfile
   
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
