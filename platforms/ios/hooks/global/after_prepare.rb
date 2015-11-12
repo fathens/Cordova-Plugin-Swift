@@ -52,21 +52,19 @@ class AllPlugins
   end
   
   def append_podfile
-    lines = []
-    @pods.each { |elm|
-      args = [elm.attributes['name'], elm.attributes['version']]
-      puts "Pod #{args}"
-      line = args.select { |a|
-        a != nil
-      }.map { |a|
-        "'" + a + "'"
-      }.join(', ')
-      lines << "pod #{line}"
-    }
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "a") { |dst|
-      dst << lines.uniq.join("\n")
+      @pods.each { |elm|
+        args = [elm.attributes['name'], elm.attributes['version']]
+        puts "Pod #{args}"
+        line = args.select { |a|
+          a != nil
+        }.map { |a|
+          "'" + a + "'"
+        }.join(', ')
+        dst.puts "pod #{line}"
+      }
     }
   end
 end
