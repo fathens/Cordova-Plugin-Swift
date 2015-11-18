@@ -13,40 +13,18 @@ def plugin_id
 end
 
 class AllPlugins
-  attr_reader :union_header
   def initialize
-    @union_header = Pathname.glob($PLATFORM_DIR.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
-    @header_files = []
     @pods = []
 
     Pathname.glob($PROJECT_DIR.join('plugins').join('*').join('plugin.xml')).each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
-        xml.elements.each('plugin/platform/bridging-header-file') { |elm|
-          @header_files << xmlFile.dirname.join(elm.attributes['src'])
-        }
         xml.elements.each('plugin/platform/podfile/pod') { |elm|
           @pods << elm
         }
       rescue => ex
         puts "Error on '#{xmlFile}': #{ex.message}"
       end
-    }
-  end
-
-  def append_union_header
-    lines = []
-    @header_files.each { |file|
-      puts "Header #{file}"
-      File.open(file) { |f|
-        lines.concat f.readlines
-      }
-    }
-
-    puts "Union Header: #{union_header}"
-    File.open(union_header, "w+") { |dst|
-      lines.concat dst.readlines
-      dst << lines.uniq.join
     }
   end
 
@@ -65,6 +43,7 @@ class AllPlugins
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
+      dst.puts "use_frameworks!"
       dst.puts()
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
@@ -102,7 +81,6 @@ end
 
 if __FILE__ == $0
   plugins = AllPlugins.new
-  plugins.append_union_header
   plugins.generate_podfile
 
   # On Platform Dir
@@ -113,8 +91,7 @@ if __FILE__ == $0
   xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
   xcode.build_settings(
   "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
-  "OTHER_LDFLAGS" => "\$(inherited)",
-  "SWIFT_OBJC_BRIDGING_HEADER" => plugins.union_header.relative_path_from($PLATFORM_DIR)
+  "OTHER_LDFLAGS" => "\$(inherited)"
   )
   xcode.project.save
 end
