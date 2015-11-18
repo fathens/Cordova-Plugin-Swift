@@ -9,8 +9,6 @@
     </engines>
 
     <platform name="ios">
-        <header-file src="platforms/ios/union-Bridging-Header.h"/>
-
-        <hook type="after_prepare" src="platforms/ios/hooks/global/after_prepare.rb"/>
+        <hook type="after_prepare" src="platforms/ios/hooks/after_prepare.rb"/>
     </platform>
 </plugin>
