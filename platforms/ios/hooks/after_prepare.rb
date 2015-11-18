@@ -14,12 +14,11 @@ end
 
 class AllPlugins
   attr_reader :union_header
-  
   def initialize
     @union_header = Pathname.glob($PLATFORM_DIR.join('*').join('Plugins').join(plugin_id).join('union-Bridging-Header.h'))[0]
     @header_files = []
     @pods = []
-    
+
     Pathname.glob($PROJECT_DIR.join('plugins').join('*').join('plugin.xml')).each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
@@ -34,7 +33,7 @@ class AllPlugins
       end
     }
   end
-  
+
   def append_union_header
     lines = []
     @header_files.each { |file|
@@ -50,7 +49,7 @@ class AllPlugins
       dst << lines.uniq.join
     }
   end
-  
+
   def generate_podfile
     def ios_version
       config_file = $PROJECT_DIR.join('config.xml')
@@ -83,14 +82,13 @@ end
 
 class FixXcodeproj
   attr_reader :project
-  
   def initialize(file)
     puts "Editing #{file}"
-    
+
     @project = Xcodeproj::Project.open(file)
     @project.recreate_user_schemes
   end
-  
+
   def build_settings(params)
     @project.targets.each do |target|
       target.build_configurations.each do |conf|
@@ -106,12 +104,12 @@ if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.append_union_header
   plugins.generate_podfile
-  
+
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
-  
+
   system "pod install"
-  
+
   xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
   xcode.build_settings(
   "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
