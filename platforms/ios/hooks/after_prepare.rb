@@ -45,7 +45,7 @@ class AllPlugins
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
       dst.puts()
-      dst.puts 'pod "Cordova"'
+      dst.puts 'pod "Cordova", "~> 3.9.0"'
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
