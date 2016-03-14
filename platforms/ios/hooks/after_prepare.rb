@@ -68,16 +68,6 @@ class FixXcodeproj
     @project = Xcodeproj::Project.open(file)
     @project.recreate_user_schemes
   end
-
-  def build_settings(params)
-    @project.targets.each do |target|
-      target.build_configurations.each do |conf|
-        params.each do |key, value|
-          conf.build_settings[key] = value
-        end
-      end
-    end
-  end
 end
 
 if __FILE__ == $0
@@ -89,10 +79,15 @@ if __FILE__ == $0
 
   system "pod install"
 
-  xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
-  xcode.build_settings(
-  "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
-  "OTHER_LDFLAGS" => "\$(inherited)"
-  )
-  xcode.project.save
+  open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
+    f.puts "LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks"
+    f.puts "OTHER_LDFLAGS = $(inherited)"
+    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
+  }
+  ["debug", "release"].each { |key|
+    open($PLATFORM_DIR.join('cordova').join("build-#{key}.xcconfig"), 'a') { |f|
+      f.puts "\#include \"#{$PLATFORM_DIR.join('Pods').join('Target Support Files').join('Pods').join("Pods.#{key}.xcconfig")}\""
+    }
+  }
+  FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0]).project.save
 end
