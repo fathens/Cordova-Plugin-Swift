@@ -41,9 +41,11 @@ class AllPlugins
       end
     end
     def cordova_version
-        json_file = $PROJECT_DIR.join('plugins', 'ios.json')
+        json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
         json = JSON.parse(File.read(json_file))
-        json['installed_plugins']['org.fathens.cordova.plugin.lang.Swift']['CORDOVA_VERSION']
+        vs = json['ios'].split('.')
+        vs[vs.size() -1] = '0'
+        "~> #{vs.join('.')}"
     end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
