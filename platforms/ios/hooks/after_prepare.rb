@@ -74,6 +74,16 @@ class FixXcodeproj
     @project = Xcodeproj::Project.open(file)
     @project.recreate_user_schemes
   end
+
+  def build_settings(params)
+    @project.targets.each do |target|
+      target.build_configurations.each do |conf|
+        params.each do |key, value|
+          conf.build_settings[key] = value
+        end
+      end
+    end
+  end
 end
 
 if __FILE__ == $0
@@ -95,5 +105,11 @@ if __FILE__ == $0
       f.puts "\#include \"#{$PLATFORM_DIR.join('Pods').join('Target Support Files').join('Pods').join("Pods.#{key}.xcconfig")}\""
     }
   }
-  FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0]).project.save
+
+  xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
+  xcode.build_settings(
+  "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
+  "OTHER_LDFLAGS" => "\$(inherited)"
+  )
+  xcode.project.save
 end
