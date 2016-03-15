@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 
+require 'json'
 require 'rexml/document'
 require 'xcodeproj'
 
@@ -39,13 +40,18 @@ class AllPlugins
         '9.0'
       end
     end
+    def cordova_version
+        json_file = $PROJECT_DIR.join('plugins', 'ios.json')
+        json = JSON.parse(File.read(json_file))
+        json['installed_plugins']['org.fathens.cordova.plugin.lang.Swift']['CORDOVA_VERSION']
+    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
       dst.puts()
-      dst.puts 'pod "Cordova", "~> 3.9.0"'
+      dst.puts "pod 'Cordova', '#{cordova_version}'"
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
