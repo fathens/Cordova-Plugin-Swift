@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="org.fathens.cordova.plugin.lang.Swift" version="1.2.10" xmlns="http://www.phonegap.com/ns/plugins/1.0">
+<plugin id="org.fathens.cordova.plugin.lang.Swift" version="1.2.12" xmlns="http://www.phonegap.com/ns/plugins/1.0">
 	<name>Crashlytics</name>
 	<description>Cordova Plugin for Swift</description>
 	<license>MIT</license>
 
 	<engines>
-       <engine name="cordova-ios" version=">=4.0.0" />
+       <engine name="cordova-ios" version=">=3.9.0" />
     </engines>
-
-    <preference name="CORDOVA_VERSION" default="~> 4.0.0" />
 
     <platform name="ios">
         <hook type="after_prepare" src="platforms/ios/hooks/after_prepare.rb"/>
