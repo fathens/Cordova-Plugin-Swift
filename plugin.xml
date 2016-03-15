@@ -8,6 +8,8 @@
        <engine name="cordova-ios" version=">=4.0.0" />
     </engines>
 
+    <preference name="CORDOVA_VERSION" default="~> 4.0.0" />
+
     <platform name="ios">
         <hook type="after_prepare" src="platforms/ios/hooks/after_prepare.rb"/>
     </platform>
