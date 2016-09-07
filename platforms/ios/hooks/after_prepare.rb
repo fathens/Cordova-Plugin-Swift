@@ -78,6 +78,22 @@ class FixXcodeproj
       end
     end
   end
+def removeImport
+  Pathname.glob($PLATFORM_DIR.join(ENV['APPLICATION_NAME']).join('Plugins').join('**').join('*.swift')).each { |fileSrc|
+    fileDst = "#{fileSrc}.rm"
+    open(fileSrc, 'r') { |src|
+      open(fileDst, 'w') { |dst|
+        src.each_line { |line|
+          if line =~ /^import +Cordova$/ then
+            puts "Removing '#{line.strip}' from #{fileSrc}"
+          else
+            dst.puts line
+          end
+        }
+      }
+    }
+    File.rename(fileDst, fileSrc)
+  }
 end
 
 if __FILE__ == $0
@@ -90,7 +106,7 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
+    f.puts "SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/#{ENV['APPLICATION_NAME']}/Bridging-Header.h"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR.join('cordova').join("build-#{key}.xcconfig"), 'a') { |f|
@@ -102,4 +118,5 @@ if __FILE__ == $0
   xcode.build_settings(
   )
   xcode.project.save
+  removeImport
 end
