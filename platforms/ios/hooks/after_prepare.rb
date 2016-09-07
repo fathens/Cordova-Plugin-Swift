@@ -90,8 +90,6 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
-    f.puts "LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks"
-    f.puts "OTHER_LDFLAGS = $(inherited)"
     f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
   }
   ["debug", "release"].each { |key|
@@ -102,8 +100,6 @@ if __FILE__ == $0
 
   xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
   xcode.build_settings(
-  "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
-  "OTHER_LDFLAGS" => "\$(inherited)"
   )
   xcode.project.save
 end
