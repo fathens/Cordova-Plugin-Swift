@@ -2,7 +2,6 @@
 
 require 'json'
 require 'rexml/document'
-require 'xcodeproj'
 
 $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
@@ -60,24 +59,6 @@ class AllPlugins
   end
 end
 
-class FixXcodeproj
-  attr_reader :project
-  def initialize(file)
-    puts "Editing #{file}"
-
-    @project = Xcodeproj::Project.open(file)
-    @project.recreate_user_schemes
-  end
-
-  def build_settings(params)
-    @project.targets.each do |target|
-      target.build_configurations.each do |conf|
-        params.each do |key, value|
-          conf.build_settings[key] = value
-        end
-      end
-    end
-  end
 def removeImport
   Pathname.glob($PLATFORM_DIR.join(ENV['APPLICATION_NAME']).join('Plugins').join('**').join('*.swift')).each { |fileSrc|
     fileDst = "#{fileSrc}.rm"
@@ -114,9 +95,5 @@ if __FILE__ == $0
     }
   }
 
-  xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
-  xcode.build_settings(
-  )
-  xcode.project.save
   removeImport
 end
