@@ -2,7 +2,6 @@
 
 require 'json'
 require 'rexml/document'
-require 'xcodeproj'
 
 $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
@@ -40,20 +39,12 @@ class AllPlugins
         '9.0'
       end
     end
-    def cordova_version
-        json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
-        json = JSON.parse(File.read(json_file))
-        vs = json['ios'].split('.').take(2)
-        vs[vs.size() -1] = '0'
-        "~> #{vs.join('.')}"
-    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
       dst.puts()
-      dst.puts "pod 'Cordova', '#{cordova_version}'"
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
@@ -68,24 +59,22 @@ class AllPlugins
   end
 end
 
-class FixXcodeproj
-  attr_reader :project
-  def initialize(file)
-    puts "Editing #{file}"
-
-    @project = Xcodeproj::Project.open(file)
-    @project.recreate_user_schemes
-  end
-
-  def build_settings(params)
-    @project.targets.each do |target|
-      target.build_configurations.each do |conf|
-        params.each do |key, value|
-          conf.build_settings[key] = value
-        end
-      end
-    end
-  end
+def removeImport
+  Pathname.glob($PLATFORM_DIR.join(ENV['APPLICATION_NAME']).join('Plugins').join('**').join('*.swift')).each { |fileSrc|
+    fileDst = "#{fileSrc}.rm"
+    open(fileSrc, 'r') { |src|
+      open(fileDst, 'w') { |dst|
+        src.each_line { |line|
+          if line =~ /^import +Cordova$/ then
+            puts "Removing '#{line.strip}' from #{fileSrc}"
+          else
+            dst.puts line
+          end
+        }
+      }
+    }
+    File.rename(fileDst, fileSrc)
+  }
 end
 
 if __FILE__ == $0
@@ -98,9 +87,7 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
-    f.puts "LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/Frameworks"
-    f.puts "OTHER_LDFLAGS = $(inherited)"
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
+    f.puts "SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/#{ENV['APPLICATION_NAME']}/Bridging-Header.h"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR.join('cordova').join("build-#{key}.xcconfig"), 'a') { |f|
@@ -108,10 +95,5 @@ if __FILE__ == $0
     }
   }
 
-  xcode = FixXcodeproj.new(Pathname.glob('*.xcodeproj')[0])
-  xcode.build_settings(
-  "LD_RUNPATH_SEARCH_PATHS" => "\$(inherited) @executable_path/Frameworks",
-  "OTHER_LDFLAGS" => "\$(inherited)"
-  )
-  xcode.project.save
+  removeImport
 end
