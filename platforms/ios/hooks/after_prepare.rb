@@ -11,7 +11,7 @@ class AllPlugins
   def initialize
     @pods = []
 
-    Pathname.glob($PROJECT_DIR.join('plugins').join('*').join('plugin.xml')).each { |xmlFile|
+    Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml').each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
         xml.elements.each('plugin/platform/podfile/pod') { |elm|
@@ -83,12 +83,12 @@ if __FILE__ == $0
 
   system "pod install"
 
-  open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
+  open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
     f.puts "SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/#{ENV['APPLICATION_NAME']}/Bridging-Header.h"
   }
   ["debug", "release"].each { |key|
-    open($PLATFORM_DIR.join('cordova').join("build-#{key}.xcconfig"), 'a') { |f|
-      f.puts "\#include \"#{$PLATFORM_DIR.join('Pods').join('Target Support Files').join('Pods').join("Pods.#{key}.xcconfig")}\""
+    open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
+      f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{ENV['APPLICATION_NAME']}"/"Pods-#{ENV['APPLICATION_NAME']}.#{key}.xcconfig"}\""
     }
   }
 
