@@ -7,12 +7,6 @@ require 'rexml/document'
 $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
-def plugin_id
-  file = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.dirname.join('plugin.xml')
-  xml = REXML::Document.new(File.open(file))
-  xml.elements['plugin'].attributes['id']
-end
-
 class AllPlugins
   def initialize
     @pods = []
