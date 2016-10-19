@@ -57,7 +57,7 @@ class AllPlugins
 end
 
 def removeImport
-  Pathname.glob($PLATFORM_DIR.join(ENV['APPLICATION_NAME']).join('Plugins').join('**').join('*.swift')).each { |fileSrc|
+  Pathname.glob($PLATFORM_DIR/ENV['APPLICATION_NAME']/'Plugins'/'**'/'*.swift').each { |fileSrc|
     fileDst = "#{fileSrc}.rm"
     open(fileSrc, 'r') { |src|
       open(fileDst, 'w') { |dst|
