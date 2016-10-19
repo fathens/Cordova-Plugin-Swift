@@ -84,7 +84,6 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
-  system "gem install cocoapods"
   system "pod install"
 
   open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
