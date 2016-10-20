@@ -84,7 +84,6 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/#{ENV['APPLICATION_NAME']}/Bridging-Header.h"
     f.puts "SWIFT_VERSION = 3.0"
   }
   ["debug", "release"].each { |key|
