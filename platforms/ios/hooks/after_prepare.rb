@@ -81,6 +81,7 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
+  system "pod repo update"
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
