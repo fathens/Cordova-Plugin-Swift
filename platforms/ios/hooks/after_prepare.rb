@@ -39,7 +39,6 @@ class AllPlugins
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
-      dst.puts "swift_version='2.3'"
       dst.puts()
       dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
       @pods.each { |elm|
