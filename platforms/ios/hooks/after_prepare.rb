@@ -39,6 +39,7 @@ class AllPlugins
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
+      dst.puts "swift_version='2.3'"
       dst.puts()
       dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
       @pods.each { |elm|
@@ -52,16 +53,6 @@ class AllPlugins
         dst.puts "  pod #{line}"
       }
       dst.puts "end"
-      
-      dst.puts <<~EOP
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['SWIFT_VERSION'] = '2.3'
-    end
-  end
-end
-      EOP
     }
   end
 end
