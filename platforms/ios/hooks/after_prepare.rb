@@ -75,7 +75,6 @@ if __FILE__ == $0
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
     f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
-    f.puts "SWIFT_VERSION = 3.0"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
