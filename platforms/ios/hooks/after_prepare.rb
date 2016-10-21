@@ -71,6 +71,7 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
+  FileUtils.copy($PROJECT_DIR/'.swift-version', '.swift-version')
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
