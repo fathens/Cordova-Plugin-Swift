@@ -34,6 +34,13 @@ class AllPlugins
         '9.0'
       end
     end
+    def cordova_version
+        json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
+        json = JSON.parse(File.read(json_file))
+        vs = json['ios'].split('.').take(2)
+        vs[vs.size() -1] = '0'
+        "~> #{vs.join('.')}"
+    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
@@ -41,6 +48,7 @@ class AllPlugins
       dst.puts "use_frameworks!"
       dst.puts()
       dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
+      dst.puts "  pod 'Cordova', '#{cordova_version}'"
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
