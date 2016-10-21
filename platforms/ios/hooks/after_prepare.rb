@@ -1,22 +1,17 @@
 #!/usr/bin/env ruby
 
+require 'pathname'
 require 'json'
 require 'rexml/document'
 
 $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
-def plugin_id
-  file = Pathname(ENV['CORDOVA_HOOK']).dirname.dirname.dirname.dirname.dirname.join('plugin.xml')
-  xml = REXML::Document.new(File.open(file))
-  xml.elements['plugin'].attributes['id']
-end
-
 class AllPlugins
   def initialize
     @pods = []
 
-    Pathname.glob($PROJECT_DIR.join('plugins').join('*').join('plugin.xml')).each { |xmlFile|
+    Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml').each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
         xml.elements.each('plugin/platform/podfile/pod') { |elm|
@@ -39,12 +34,21 @@ class AllPlugins
         '9.0'
       end
     end
+    def cordova_version
+        json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
+        json = JSON.parse(File.read(json_file))
+        vs = json['ios'].split('.')
+        vs[vs.size() -1] = '0'
+        "~> #{vs.join('.')}"
+    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
       dst.puts "use_frameworks!"
       dst.puts()
+      dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
+      dst.puts "  pod 'Cordova', '#{cordova_version}'"
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
@@ -53,28 +57,11 @@ class AllPlugins
         }.map { |a|
           "'" + a + "'"
         }.join(', ')
-        dst.puts "pod #{line}"
+        dst.puts "  pod #{line}"
       }
+      dst.puts "end"
     }
   end
-end
-
-def removeImport
-  Pathname.glob($PLATFORM_DIR.join(ENV['APPLICATION_NAME']).join('Plugins').join('**').join('*.swift')).each { |fileSrc|
-    fileDst = "#{fileSrc}.rm"
-    open(fileSrc, 'r') { |src|
-      open(fileDst, 'w') { |dst|
-        src.each_line { |line|
-          if line =~ /^import +Cordova$/ then
-            puts "Removing '#{line.strip}' from #{fileSrc}"
-          else
-            dst.puts line
-          end
-        }
-      }
-    }
-    File.rename(fileDst, fileSrc)
-  }
 end
 
 if __FILE__ == $0
@@ -84,16 +71,16 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
+  swift_version = ($PROJECT_DIR/'.swift-version').read.strip
   system "pod install"
 
-  open($PLATFORM_DIR.join('cordova').join('build-extras.xcconfig'), 'a') { |f|
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER = $(SRCROOT)/#{ENV['APPLICATION_NAME']}/Bridging-Header.h"
+  open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
+    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
+    f.puts "SWIFT_VERSION = #{swift_version}"
   }
   ["debug", "release"].each { |key|
-    open($PLATFORM_DIR.join('cordova').join("build-#{key}.xcconfig"), 'a') { |f|
-      f.puts "\#include \"#{$PLATFORM_DIR.join('Pods').join('Target Support Files').join('Pods').join("Pods.#{key}.xcconfig")}\""
+    open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
+      f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{ENV['APPLICATION_NAME']}"/"Pods-#{ENV['APPLICATION_NAME']}.#{key}.xcconfig"}\""
     }
   }
-
-  removeImport
 end
