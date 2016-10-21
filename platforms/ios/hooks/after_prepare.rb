@@ -37,7 +37,7 @@ class AllPlugins
     def cordova_version
         json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
         json = JSON.parse(File.read(json_file))
-        vs = json['ios'].split('.').take(2)
+        vs = json['ios'].split('.')
         vs[vs.size() -1] = '0'
         "~> #{vs.join('.')}"
     end
