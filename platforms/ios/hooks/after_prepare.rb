@@ -71,11 +71,12 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
-  FileUtils.copy($PROJECT_DIR/'.swift-version', '.swift-version')
+  swift_version = ($PROJECT_DIR/'.swift-version').read.strip
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
     f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
+    f.puts "SWIFT_VERSION = #{swift_version}"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
