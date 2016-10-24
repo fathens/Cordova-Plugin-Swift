@@ -56,6 +56,24 @@ class AllPlugins
   end
 end
 
+def removeImport
+  Pathname.glob($PLATFORM_DIR/ENV['APPLICATION_NAME']/'Plugins'/'**'/'*.swift').each { |fileSrc|
+    fileDst = "#{fileSrc}.rm"
+    open(fileSrc, 'r') { |src|
+      open(fileDst, 'w') { |dst|
+        src.each_line { |line|
+          if line =~ /^import +Cordova$/ then
+            puts "Removing '#{line.strip}' from #{fileSrc}"
+          else
+            dst.puts line
+          end
+        }
+      }
+    }
+    File.rename(fileDst, fileSrc)
+  }
+end
+
 if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.generate_podfile
@@ -67,7 +85,6 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
     f.puts "SWIFT_VERSION = #{swift_version}"
   }
   ["debug", "release"].each { |key|
@@ -75,4 +92,6 @@ if __FILE__ == $0
       f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{ENV['APPLICATION_NAME']}"/"Pods-#{ENV['APPLICATION_NAME']}.#{key}.xcconfig"}\""
     }
   }
+
+  removeImport
 end
