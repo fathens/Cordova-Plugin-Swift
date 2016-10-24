@@ -34,13 +34,6 @@ class AllPlugins
         '9.0'
       end
     end
-    def cordova_version
-        json_file = $PROJECT_DIR.join('platforms', 'platforms.json')
-        json = JSON.parse(File.read(json_file))
-        vs = json['ios'].split('.')
-        vs[vs.size() -1] = '0'
-        "~> #{vs.join('.')}"
-    end
     podfile = $PLATFORM_DIR.join('Podfile')
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
@@ -48,7 +41,6 @@ class AllPlugins
       dst.puts "use_frameworks!"
       dst.puts()
       dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
-      dst.puts "  pod 'Cordova', '#{cordova_version}'"
       @pods.each { |elm|
         args = [elm.attributes['name'], elm.attributes['version']]
         puts "Pod #{args}"
@@ -64,6 +56,24 @@ class AllPlugins
   end
 end
 
+def removeImport
+  Pathname.glob($PLATFORM_DIR/ENV['APPLICATION_NAME']/'Plugins'/'**'/'*.swift').each { |fileSrc|
+    fileDst = "#{fileSrc}.rm"
+    open(fileSrc, 'r') { |src|
+      open(fileDst, 'w') { |dst|
+        src.each_line { |line|
+          if line =~ /^import +Cordova$/ then
+            puts "Removing '#{line.strip}' from #{fileSrc}"
+          else
+            dst.puts line
+          end
+        }
+      }
+    }
+    File.rename(fileDst, fileSrc)
+  }
+end
+
 if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.generate_podfile
@@ -75,7 +85,6 @@ if __FILE__ == $0
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_OBJC_BRIDGING_HEADER ="
     f.puts "SWIFT_VERSION = #{swift_version}"
   }
   ["debug", "release"].each { |key|
@@ -83,4 +92,6 @@ if __FILE__ == $0
       f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{ENV['APPLICATION_NAME']}"/"Pods-#{ENV['APPLICATION_NAME']}.#{key}.xcconfig"}\""
     }
   }
+
+  removeImport
 end
