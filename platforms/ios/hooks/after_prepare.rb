@@ -36,7 +36,7 @@ class AllPlugins
 
   def generate_podfile
     def ios_version
-      config_file = $PROJECT_DIR.join('config.xml')
+      config_file = $PROJECT_DIR/'config.xml'
       xml = REXML::Document.new(File.open(config_file))
       target = xml.elements["widget/preference[@name='deployment-target']"]
       if target != nil then
@@ -45,7 +45,7 @@ class AllPlugins
         '9.0'
       end
     end
-    podfile = $PLATFORM_DIR.join('Podfile')
+    podfile = $PLATFORM_DIR/'Podfile'
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
