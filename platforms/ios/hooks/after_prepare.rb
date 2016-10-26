@@ -9,13 +9,18 @@ $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
 class AllPlugins
   def initialize
+    @swift_versions = []
     @pods = []
 
     Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml').each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
-        xml.elements.each('plugin/platform/podfile/pod') { |elm|
-          @pods << elm
+        xml.elements.each('plugin/platform/podfile') { |podfile|
+          v = podfile.attributes['swift_version']
+          @swift_versions << v if v
+          podfile.elements.each('pod') { |elm|
+            @pods << elm
+          }
         }
       rescue => ex
         puts "Error on '#{xmlFile}': #{ex.message}"
@@ -23,9 +28,15 @@ class AllPlugins
     }
   end
 
+  def swift_version
+    @swift_versions.map { |v|
+      v.to_f
+    }.min
+  end
+
   def generate_podfile
     def ios_version
-      config_file = $PROJECT_DIR.join('config.xml')
+      config_file = $PROJECT_DIR/'config.xml'
       xml = REXML::Document.new(File.open(config_file))
       target = xml.elements["widget/preference[@name='deployment-target']"]
       if target != nil then
@@ -34,7 +45,7 @@ class AllPlugins
         '9.0'
       end
     end
-    podfile = $PLATFORM_DIR.join('Podfile')
+    podfile = $PLATFORM_DIR/'Podfile'
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
       dst.puts "platform :ios,'#{ios_version}'"
@@ -78,10 +89,12 @@ if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.generate_podfile
 
+  swift_version = plugins.swift_version
+  puts "Using swift_version: #{swift_version}"
+
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
-  swift_version = ($PROJECT_DIR/'.swift-version').read.strip
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
