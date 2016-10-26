@@ -9,18 +9,29 @@ $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
 class AllPlugins
   def initialize
+    @swift_versions = []
     @pods = []
 
     Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml').each { |xmlFile|
       begin
         xml = REXML::Document.new(File.open(xmlFile))
-        xml.elements.each('plugin/platform/podfile/pod') { |elm|
-          @pods << elm
+        xml.elements.each('plugin/platform/podfile') { |podfile|
+          v = podfile.attributes['swift_version']
+          @swift_versions << v if v
+          podfile.elements.each('pod') { |elm|
+            @pods << elm
+          }
         }
       rescue => ex
         puts "Error on '#{xmlFile}': #{ex.message}"
       end
     }
+  end
+
+  def swift_version
+    @swift_versions.map { |v|
+      v.to_f
+    }.min
   end
 
   def generate_podfile
@@ -81,11 +92,10 @@ if __FILE__ == $0
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
-  swift_version = ($PROJECT_DIR/'.swift-version').read.strip
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_VERSION = #{swift_version}"
+    f.puts "SWIFT_VERSION = #{plugins.swift_version}"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
