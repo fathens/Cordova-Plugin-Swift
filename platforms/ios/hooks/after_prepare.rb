@@ -89,13 +89,16 @@ if __FILE__ == $0
   plugins = AllPlugins.new
   plugins.generate_podfile
 
+  swift_version = plugins.swift_version
+  puts "Using swift_version: #{swift_version}"
+
   # On Platform Dir
   Dir.chdir $PLATFORM_DIR
 
   system "pod install"
 
   open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_VERSION = #{plugins.swift_version}"
+    f.puts "SWIFT_VERSION = #{swift_version}"
   }
   ["debug", "release"].each { |key|
     open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
