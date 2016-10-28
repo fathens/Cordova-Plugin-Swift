@@ -7,6 +7,17 @@ require 'rexml/document'
 $PROJECT_DIR = Pathname('.').realpath
 $PLATFORM_DIR = Pathname('platforms').join('ios').realpath
 
+def ios_version
+  config_file = $PROJECT_DIR/'config.xml';
+  xml = REXML::Document.new(File.open(config_file))
+  target = xml.elements["widget//preference[@name='deployment-target']"]
+  if target != nil then
+    target.attributes['value']
+  else
+    '9.0'
+  end
+end
+
 class AllPlugins
   def initialize
     @swift_versions = []
@@ -35,16 +46,6 @@ class AllPlugins
   end
 
   def generate_podfile
-    def ios_version
-      config_file = $PROJECT_DIR/'config.xml'
-      xml = REXML::Document.new(File.open(config_file))
-      target = xml.elements["widget/preference[@name='deployment-target']"]
-      if target != nil then
-        target.attributes['value']
-      else
-        '9.0'
-      end
-    end
     podfile = $PLATFORM_DIR/'Podfile'
     puts "Podfile: #{podfile}"
     File.open(podfile, "w") { |dst|
