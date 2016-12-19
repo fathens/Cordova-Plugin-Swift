@@ -144,11 +144,10 @@ class Podfile < ElementStruct
         return self
     end
 
-    def write(target_name)
+    def write(target_file, target_name)
         log_header "Write Podfile"
 
-        target = $PLATFORM_DIR/'Podfile'
-        File.open(target, "w") { |dst|
+        File.open(target_file, "w") { |dst|
             dst.puts "platform :ios,'#{@ios_version}'"
             dst.puts "swift_version = #{@swift_version}"
             dst.puts "use_frameworks!"
