@@ -154,7 +154,7 @@ class Podfile < ElementStruct
             dst.puts "use_frameworks!"
             dst.puts()
             dst.puts "target '#{target_name}' do"
-            dst.puts @pods.map { |pod|
+            dst.puts pods.map { |pod|
                 "    #{pod}"
             }
             dst.puts "end"
