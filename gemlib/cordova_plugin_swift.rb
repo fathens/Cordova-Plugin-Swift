@@ -1,5 +1,5 @@
-require 'cordova_plugin_swift/podfile'
-require 'cordova_plugin_swift/xcode_project'
+require_relative 'cordova_plugin_swift/podfile'
+require_relative 'cordova_plugin_swift/xcode_project'
 
 def log(msg)
     puts msg
