@@ -32,6 +32,10 @@ class BridgingHeader < ElementStruct
     def initialize(params = {})
         super
     end
+
+    def to_s
+        "#import <#{import}>"
+    end
 end
 
 class Pod < ElementStruct
@@ -155,24 +159,5 @@ class Podfile < ElementStruct
             }
             dst.puts "end"
         }
-    end
-end
-
-class BridgingHeaderFile
-    def initialize(all)
-        @imports = all.map { |x| x.import }.compact.uniq
-    end
-
-    def write(file)
-        if @imports.empty?
-            return nil
-        else
-            File.open(file, "w") { |dst|
-                dst.puts @imports.map { |x|
-                    "#import <#{x}>"
-                }
-            }
-            return file
-        end
     end
 end
