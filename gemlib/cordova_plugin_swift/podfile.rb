@@ -47,6 +47,38 @@ class Pod < ElementStruct
         }
     end
 
+    def merge(other)
+        version = [self.version, other.version].compact.min
+
+        # podspec -> path -> git
+        podspec ||= other.podspec
+        if podspec
+            path = nil
+            git = nil
+        else
+            path ||= other.path
+            if path
+                git = nil
+            else
+                git ||= other.git
+            end
+        end
+
+        if git
+            branch ||= other.branch
+            tag ||= other.tag if !branch
+            commit ||= other.commit if !commit
+        else
+            branch = nil
+            tag = nil
+            commit = nil
+        end
+
+        subspecs = [self.subspecs, other.subspecs].compact.join(', ')
+
+        return self
+    end
+
     def to_s
         args = [
             or_nil(:name, false),
@@ -85,6 +117,21 @@ class Podfile < ElementStruct
         @pods ||= sub_elements('pod').map { |e|
             Pod.new(element: e)
         }
+    end
+
+    def merge(other)
+        ios_version = [self.ios_version, other.ios_version].compact.min
+        swift_version = [self.swift_version, other.swift_version].compact.min
+
+        other.pods.each { |pod|
+            found = self.pods.find { |x| x.name == pod.name }
+            if found
+                found.merge pod
+            else
+                pods.push pod
+            end
+        }
+        return self
     end
 
     def write(target_name)
