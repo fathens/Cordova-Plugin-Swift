@@ -107,6 +107,12 @@ class Pod < ElementStruct
 end
 
 class Podfile < ElementStruct
+    def self.from_pluginxml(pluginxml)
+        xml = REXML::Document.new(File.open(xmlFile))
+        e = xml.get_elements('//platform[@name="ios"]/podfile').first
+        e ? Podfile.new(element: e) : nil
+    end
+
     attr_accessor :ios_version, :swift_version
 
     def initialize(params = {})
