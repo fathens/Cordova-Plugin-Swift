@@ -160,3 +160,20 @@ class Podfile < ElementStruct
         }
     end
 end
+
+class ConfigXml
+    def initialize(config_file)
+        @xml = REXML::Document.new(File.open(config_file))
+    end
+
+    def ios_version
+        @ios_version ||= begin
+            target = xml.elements["widget//preference[@name='deployment-target']"]
+            target&.attributes ? target&.attributes['value'] : nil
+        end
+    end
+
+    def application_name
+        @application_name ||= xml.elements["widget/name"]&.text
+    end
+end
