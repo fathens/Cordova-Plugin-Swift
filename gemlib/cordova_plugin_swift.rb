@@ -1,4 +1,5 @@
-Gem.find_files("cordova_plugin_swift/**/*.rb").each { |path| require path }
+require 'cordova_plugin_swift/podfile'
+require 'cordova_plugin_swift/xcode_project'
 
 def log(msg)
     puts msg
