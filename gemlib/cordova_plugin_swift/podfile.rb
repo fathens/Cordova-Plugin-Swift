@@ -168,12 +168,12 @@ class ConfigXml
 
     def ios_version
         @ios_version ||= begin
-            target = xml.elements["widget//preference[@name='deployment-target']"]
+            target = @xml.elements["widget//preference[@name='deployment-target']"]
             target&.attributes ? target&.attributes['value'] : nil
         end
     end
 
     def application_name
-        @application_name ||= xml.elements["widget/name"]&.text
+        @application_name ||= @xml.elements["widget/name"]&.text
     end
 end
