@@ -17,4 +17,6 @@ Gem::Specification.new do |s|
 
   s.files        = Dir["gemlib/**/*"]
   s.require_path = "gemlib"
+
+  s.add_runtime_dependency 'xcodeproj'
 end
