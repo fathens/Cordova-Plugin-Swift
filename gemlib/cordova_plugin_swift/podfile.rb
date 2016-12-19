@@ -112,7 +112,7 @@ end
 
 class Podfile < ElementStruct
     def self.from_pluginxml(pluginxml)
-        xml = REXML::Document.new(File.open(xmlFile))
+        xml = REXML::Document.new(File.open(pluginxml))
         e = xml.get_elements('//platform[@name="ios"]/podfile').first
         e ? Podfile.new(element: e) : nil
     end
