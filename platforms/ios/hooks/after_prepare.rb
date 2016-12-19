@@ -1,111 +1,81 @@
 #!/usr/bin/env ruby
 
 require 'pathname'
-require 'json'
 require 'rexml/document'
+require_relative '../../../gemlib/cordova_plugin_swift'
 
-$PROJECT_DIR = Pathname('.').realpath
-$PLATFORM_DIR = Pathname('platforms').join('ios').realpath
+def load_podfile(base_dir, ios_version, swift_version)
+    podfile = Pathname.glob(base_dir/'plugins'/'*'/'plugin.xml').map { |xmlFile|
+        begin
+            Podfile.from_pluginxml(xmlFile)
+        rescue => ex
+            puts "Error on '#{xmlFile}': #{ex.message}"
+        end
+    }.compact.reduce(Podfile.new(ios_version: ios_version, swift_version: swift_version)) { |a, b|
+        a.merge b
+    }
 
-def ios_version
-  config_file = $PROJECT_DIR/'config.xml';
-  xml = REXML::Document.new(File.open(config_file))
-  target = xml.elements["widget//preference[@name='deployment-target']"]
-  if target != nil then
-    target.attributes['value']
-  else
-    '9.0'
-  end
+    raise "Require down version of iOS in plugins: #{podfile.ios_version} < #{ios_version}" if podfile.ios_version < ios_version
+
+    podfile
 end
 
-class AllPlugins
-  def initialize
-    @swift_versions = []
-    @pods = []
+def bridging(podfile, target_file)
+    headers = podfile.pods.map {|p| p.bridging_headers }.flatten
 
-    Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml').each { |xmlFile|
-      begin
-        xml = REXML::Document.new(File.open(xmlFile))
-        xml.elements.each('plugin/platform/podfile') { |podfile|
-          v = podfile.attributes['swift_version']
-          @swift_versions << v if v
-          podfile.elements.each('pod') { |elm|
-            @pods << elm
-          }
-        }
-      rescue => ex
-        puts "Error on '#{xmlFile}': #{ex.message}"
-      end
+    File.open(target_file, 'a') { |dst|
+        dst.puts()
+        dst.puts "// Below add by Cordova-Plugin-Swift"
+        dst.puts headers.map(&:to_s)
     }
-  end
-
-  def swift_version
-    @swift_versions.map { |v|
-      v.to_f
-    }.min
-  end
-
-  def generate_podfile
-    podfile = $PLATFORM_DIR/'Podfile'
-    puts "Podfile: #{podfile}"
-    File.open(podfile, "w") { |dst|
-      dst.puts "platform :ios,'#{ios_version}'"
-      dst.puts "use_frameworks!"
-      dst.puts()
-      dst.puts "target '#{ENV['APPLICATION_NAME']}' do"
-      @pods.each { |elm|
-        args = [elm.attributes['name'], elm.attributes['version']]
-        puts "Pod #{args}"
-        line = args.select { |a|
-          a != nil
-        }.map { |a|
-          "'" + a + "'"
-        }.join(', ')
-        dst.puts "  pod #{line}"
-      }
-      dst.puts "end"
-    }
-  end
 end
 
-def removeImport
-  Pathname.glob($PLATFORM_DIR/ENV['APPLICATION_NAME']/'Plugins'/'**'/'*.swift').each { |fileSrc|
-    fileDst = "#{fileSrc}.rm"
-    open(fileSrc, 'r') { |src|
-      open(fileDst, 'w') { |dst|
-        src.each_line { |line|
-          if line =~ /^import +Cordova$/ then
-            puts "Removing '#{line.strip}' from #{fileSrc}"
-          else
-            dst.puts line
-          end
-        }
-      }
+def removeImport(files)
+    files.each { |fileSrc|
+        fileDst = "#{fileSrc}.rm"
+            open(fileSrc, 'r') { |src|
+                open(fileDst, 'w') { |dst|
+                    src.each_line { |line|
+                        if line =~ /^import +Cordova$/ then
+                            puts "Removing '#{line.strip}' from #{fileSrc}"
+                        else
+                            dst.puts line
+                        end
+                    }
+                }
+            }
+        File.rename(fileDst, fileSrc)
     }
-    File.rename(fileDst, fileSrc)
-  }
 end
 
-if __FILE__ == $0
-  plugins = AllPlugins.new
-  plugins.generate_podfile
+$PROJECT_DIR = Pathname.pwd.realpath
+$PLATFORM_DIR = $PROJECT_DIR/'platforms'/'ios'
 
-  swift_version = plugins.swift_version
-  puts "Using swift_version: #{swift_version}"
+config = ConfigXml.new($PROJECT_DIR/'config.xml')
+$APPLICATION_NAME = config.application_name
 
-  # On Platform Dir
-  Dir.chdir $PLATFORM_DIR
+log_header "Loading podfile..."
+podfile = load_podfile($PROJECT_DIR, config.ios_version || '9.0', '3.0')
+log "Using ios_version: #{podfile.ios_version}"
+log "Using swift_version: #{podfile.swift_version}"
 
-  system "pod install"
+podfile.write($PLATFORM_DIR/'Podfile', $APPLICATION_NAME)
+Dir.chdir($PLATFORM_DIR) {
+    system "pod install"
+}
 
-  open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
-    f.puts "SWIFT_VERSION = #{swift_version}"
-  }
-  ["debug", "release"].each { |key|
+log_header "Removing unnecessary imports..."
+removeImport Pathname.glob($PLATFORM_DIR/$APPLICATION_NAME/'Plugins'/'**'/'*.swift')
+
+bridging podfile, $PLATFORM_DIR/$APPLICATION_NAME/'Bridging-Header.h'
+
+log_header "Modify xcconfig..."
+
+open($PLATFORM_DIR/'cordova'/'build-extras.xcconfig', 'a') { |f|
+    f.puts "SWIFT_VERSION = #{podfile.swift_version}"
+}
+["debug", "release"].each { |key|
     open($PLATFORM_DIR/'cordova'/"build-#{key}.xcconfig", 'a') { |f|
-      f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{ENV['APPLICATION_NAME']}"/"Pods-#{ENV['APPLICATION_NAME']}.#{key}.xcconfig"}\""
+        f.puts "\#include \"#{$PLATFORM_DIR/'Pods'/'Target Support Files'/"Pods-#{$APPLICATION_NAME}"/"Pods-#{$APPLICATION_NAME}.#{key}.xcconfig"}\""
     }
-  }
-
-  removeImport
-end
+}
