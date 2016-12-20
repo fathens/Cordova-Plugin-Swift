@@ -50,6 +50,7 @@ end
 
 $PROJECT_DIR = Pathname.pwd.realpath
 $PLATFORM_DIR = $PROJECT_DIR/'platforms'/'ios'
+ENV['PLUGIN_DIR'] = Pathname($0).realpath.dirname.dirname.dirname.dirname.to_s
 
 config = ConfigXml.new($PROJECT_DIR/'config.xml')
 $APPLICATION_NAME = config.application_name
