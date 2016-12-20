@@ -18,4 +18,8 @@ Gem::Specification.new do |s|
     s.files        = Dir["lib/**/*"]
 
     s.add_runtime_dependency 'xcodeproj'
+
+    s.add_development_dependency "bundler", "~> 1.13"
+    s.add_development_dependency "rake", "~> 10.0"
+    s.add_development_dependency "rspec", "~> 3.0"
 end
