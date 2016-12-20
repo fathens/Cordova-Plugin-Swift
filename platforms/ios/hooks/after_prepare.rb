@@ -2,7 +2,7 @@
 
 require 'pathname'
 require 'rexml/document'
-require_relative '../../../gemlib/cordova_plugin_swift'
+require_relative '../../../lib/cordova_plugin_swift'
 
 def load_podfile(base_dir, ios_version, swift_version)
     podfile = Pathname.glob(base_dir/'plugins'/'*'/'plugin.xml').map { |xmlFile|
