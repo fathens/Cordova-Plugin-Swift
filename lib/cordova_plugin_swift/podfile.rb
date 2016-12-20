@@ -52,33 +52,33 @@ class Pod < ElementStruct
     end
 
     def merge(other)
-        version = [self.version, other.version].compact.min
+        self.version = [self.version, other.version].compact.min
 
         # podspec -> path -> git
-        podspec ||= other.podspec
+        self.podspec ||= other.podspec
         if podspec
-            path = nil
-            git = nil
+            self.path = nil
+            self.git = nil
         else
-            path ||= other.path
-            if path
-                git = nil
+            self.path ||= other.path
+            if self.path
+                self.git = nil
             else
-                git ||= other.git
+                self.git ||= other.git
             end
         end
 
-        if git
-            branch ||= other.branch
-            tag ||= other.tag if !branch
-            commit ||= other.commit if !commit
+        if self.git
+            self.commit ||= other.commit
+            self.tag = self.commit ? nil : (self.tag || other.tag)
+            self.branch = (self.commit || self.tag) ? nil : (self.branch || other.branch)
         else
-            branch = nil
-            tag = nil
-            commit = nil
+            self.branch = nil
+            self.tag = nil
+            self.commit = nil
         end
 
-        subspecs = [self.subspecs, other.subspecs].compact.join(', ')
+        self.subspecs = [self.subspecs, other.subspecs].compact.join(', ')
 
         return self
     end
@@ -130,8 +130,8 @@ class Podfile < ElementStruct
     end
 
     def merge(other)
-        ios_version = [self.ios_version, other.ios_version].compact.min
-        swift_version = [self.swift_version, other.swift_version].compact.min
+        self.ios_version = [self.ios_version, other.ios_version].compact.min
+        self.swift_version = [self.swift_version, other.swift_version].compact.min
 
         other.pods.each { |pod|
             found = self.pods.find { |x| x.name == pod.name }
