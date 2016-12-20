@@ -1,5 +1,23 @@
 require "spec_helper"
 
+describe 'Podfile base_dir merge' do
+    context "when empty to empty" do
+        a = Podfile.new()
+        a.merge Podfile.new()
+        it { expect(a.base_dir).to be_nil }
+    end
+    context "when empty to value" do
+        a = Podfile.new()
+        a.merge Podfile.new(base_dir: "/path_to_somewhere")
+        it { expect(a.base_dir).to eq("/path_to_somewhere") }
+    end
+    context "when value to empty" do
+        a = Podfile.new(base_dir: "/path_to_somewhere")
+        a.merge Podfile.new()
+        it { expect(a.base_dir).to eq("/path_to_somewhere") }
+    end
+end
+
 describe 'Podfile ios_version merge' do
     context "with upper" do
         a = Podfile.new(ios_version: '8.0')

@@ -39,7 +39,7 @@ class BridgingHeader < ElementStruct
 end
 
 class Pod < ElementStruct
-    attr_accessor :name, :version, :path, :git, :branch, :tag, :commit, :podspec, :subspecs
+    attr_accessor :base_dir, :name, :version, :path, :git, :branch, :tag, :commit, :podspec, :subspecs
 
     def initialize(params = {})
         super
@@ -52,6 +52,7 @@ class Pod < ElementStruct
     end
 
     def merge(other)
+        self.base_dir ||= other.base_dir
         self.version = [self.version, other.version].compact.min
 
         # podspec -> path -> git
@@ -84,6 +85,7 @@ class Pod < ElementStruct
     end
 
     def to_s
+        ENV['PLUGIN_DIR'] = self.base_dir&.to_s
         args = [
             or_nil(:name, false),
             or_nil(:version, false),
@@ -114,10 +116,10 @@ class Podfile < ElementStruct
     def self.from_pluginxml(pluginxml)
         xml = REXML::Document.new(File.open(pluginxml))
         e = xml.get_elements('//platform[@name="ios"]/podfile').first
-        e ? Podfile.new(element: e) : nil
+        e ? Podfile.new(base_dir: pluginxml.dirname, element: e) : nil
     end
 
-    attr_accessor :ios_version, :swift_version
+    attr_accessor :base_dir, :ios_version, :swift_version
 
     def initialize(params = {})
         super
@@ -125,11 +127,12 @@ class Podfile < ElementStruct
 
     def pods
         @pods ||= sub_elements('pod').map { |e|
-            Pod.new(element: e)
+            Pod.new(base_dir: self.base_dir, element: e)
         }
     end
 
     def merge(other)
+        self.base_dir ||= other.base_dir
         self.ios_version = [self.ios_version, other.ios_version].compact.min
         self.swift_version = [self.swift_version, other.swift_version].compact.min
 
