@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<plugin id="org.fathens.cordova.plugin.lang.swift" version="1.3.11" xmlns="http://www.phonegap.com/ns/plugins/1.0">
-	<name>Crashlytics</name>
+<plugin id="org.fathens.cordova.plugin.lang.swift" version="1.4.0" xmlns="http://www.phonegap.com/ns/plugins/1.0">
+	<name>Swift</name>
 	<description>Cordova Plugin for Swift</description>
 	<license>MIT</license>
 
 	<engines>
-       <engine name="cordova-ios" version=">=3.9.0" />
+       <engine name="cordova-ios" version=">=4.3.0" />
     </engines>
 
     <platform name="ios">
