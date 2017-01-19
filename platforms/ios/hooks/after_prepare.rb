@@ -11,7 +11,7 @@ swift_version = '3.0'
 
 log "Using swift_version: #{swift_version}"
 open($PLATFORM_DIR/'cordova'/'build.xcconfig', 'a') { |f|
-    f.puts "SWIFT_VERSION = #{podfile.swift_version}"
+    f.puts "SWIFT_VERSION = #{swift_version}"
 }
 
 headers = CordovaPluginSwift.bridging_headers(base_dir)
