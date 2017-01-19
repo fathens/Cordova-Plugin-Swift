@@ -49,7 +49,7 @@ describe 'Finding Bridging-Headers' do
         system "cat #{plugin}"
         headers = CordovaPluginSwift.bridging_headers(base_dir)
         it { expect(headers.size).to be 1 }
-        it { expect(headers.first).to eq 'import <Some/Some.h>' }
+        it { expect(headers.first).to eq '#import <Some/Some.h>' }
     end
 
     after :all do

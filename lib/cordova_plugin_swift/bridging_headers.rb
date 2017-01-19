@@ -14,7 +14,7 @@ module CordovaPluginSwift
                 puts "Error on '#{xmlFile}': #{ex.message}"
             end
         }.flatten.compact.uniq.map { |name|
-            "import <#{name}>"
+            "#import <#{name}>"
         }
     end
 end
