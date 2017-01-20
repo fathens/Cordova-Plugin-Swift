@@ -52,7 +52,8 @@ class Pod < ElementStruct
     end
 
     def to_s
-        "pod '#{@src || @name}', '#{@spec}'"
+        parts = [(@src || @name), @spec].compact.map { |a| "'#{a}'" }.join(', ')
+        "pod #{parts}"
     end
 end
 
