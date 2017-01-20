@@ -1,19 +1,22 @@
 require 'rexml/document'
 
-class Podfile
+class Podfile < ElementStruct
     attr_accessor :pods, :ios_version, :swift_version, :use_frameworks
 
     def self.from_pluginxml(plugin_file)
         xml = REXML::Document.new(File.open(plugin_file))
-        pods = xml.get_elements('//platform[@name="ios"]/framework[@type="podspec"]').map { |x|
-            Pod.new(x)
-        }
-        Podfile.new(pods)
+        e = xml.elements['//platform[@name="ios"]']
+        Podfile.new(element: e)
     end
 
-    def initialize(pods)
-        @pods = pods
-        @use_frameworks = false
+    def initialize(params = {})
+        super
+    end
+
+    def pods
+        @pods ||= sub_elements('framework[@type="podspec"]').map { |e|
+            Pod.new(element: e)
+        }
     end
 
     def write(target_file, target_name)
@@ -30,28 +33,58 @@ class Podfile
     end
 end
 
-class Pod
-    attr_accessor :name, :spec, :bridging_headers
+class Pod < ElementStruct
+    attr_accessor :src, :name, :spec, :bridging_headers
 
-    def initialize(framework)
-        @name = framework.attributes['src']
-        @spec = framework.attributes['spec']
-        @bridging_headers = framework.get_elements('//bridging-header').map { |x|
-            BridgingHeader.new(x)
+    def initialize(params = {})
+        super
+    end
+
+    def bridging_headers
+        @bridging_headers ||= sub_elements('bridging-header').map { |e|
+            BridgingHeader.new(element: e)
         }
     end
 
     def to_s
-        "pod '#{@name}', '#{@spec}'"
+        "pod '#{@src || @name}', '#{@spec}'"
     end
 end
 
-class BridgingHeader
-    def initialize(element)
-        @name = element.attributes['name']
+class BridgingHeader < ElementStruct
+    attr_accessor :import
+
+    def initialize(params = {})
+        super
     end
 
     def to_s
-        "#import <#{@name}>"
+        "#import <#{@import}>"
+    end
+end
+
+class ElementStruct
+    def self.accessors(clazz)
+        keys = clazz.instance_methods
+        names = keys.map { |key| key.to_s }
+        keys.select { |key|
+            key.to_s.match(/^\w+$/) && names.include?("#{key}=")
+        }
+    end
+
+    def initialize(params = {})
+        @element = params[:element]
+        ElementStruct.accessors(self.class).each { |key|
+            value = params[key] || attributes(key.to_s)
+            send "#{key}=", value
+        }
+    end
+
+    def attributes(name)
+        @element ? @element.attributes[name] : nil
+    end
+
+    def sub_elements(xpath)
+        @element ? @element.get_elements(xpath) : []
     end
 end
