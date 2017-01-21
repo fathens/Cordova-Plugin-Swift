@@ -14,7 +14,7 @@ open($PLATFORM_DIR/'cordova'/'build.xcconfig', 'a') { |f|
     f.puts "SWIFT_VERSION = #{swift_version}"
 }
 
-headers = CordovaPluginSwift.bridging_headers($PROJECT_DIR)
+headers = Podfile.bridging_headers(Pathname.glob($PROJECT_DIR/'plugins'/'*'/'plugin.xml'))
 bridging_file = Pathname.glob($PLATFORM_DIR/'*'/'Bridging-Header.h').first
 if (bridging_file && !headers.empty?) then
     File.open(bridging_file, 'a') { |dst|
