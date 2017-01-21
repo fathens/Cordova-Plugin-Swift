@@ -1,4 +1,3 @@
-require_relative 'cordova_plugin_swift/bridging_headers'
 require_relative 'cordova_plugin_swift/podfile'
 require_relative 'cordova_plugin_swift/xcode_project'
 
