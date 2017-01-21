@@ -60,10 +60,24 @@ end
 class Podfile < ElementStruct
     attr_accessor :pods, :ios_version, :swift_version, :use_frameworks
 
+    def self.bridging_headers(files)
+        files.map { |file|
+            begin
+                from_pluginxml(file)
+            rescue => ex
+                puts "Error on '#{file}': #{ex.message}"
+            end
+        }.compact.map { |podfile|
+            podfile.pods.map { |pod| pod.bridging_headers }
+        }.flatten.map { |bh|
+            bh.to_s
+        }.uniq
+    end
+
     def self.from_pluginxml(plugin_file)
         xml = REXML::Document.new(File.open(plugin_file))
         e = xml.elements['//platform[@name="ios"]']
-        Podfile.new(element: e)
+        e ? Podfile.new(element: e) : nil
     end
 
     def initialize(params = {})

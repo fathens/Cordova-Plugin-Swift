@@ -12,7 +12,7 @@ class XcodeProject
         log_header "Write #{project_name}.xcodeproj"
 
         project = Xcodeproj::Project.new "#{project_name}.xcodeproj"
-        target = project.new_target(:framework, project_name, :ios)
+        project.new_target(:framework, project_name, :ios)
         project.recreate_user_schemes
 
         project.targets.each do |target|
