@@ -2,6 +2,7 @@
 $LOAD_PATH.push File.expand_path("../../lib", __FILE__)
 
 require 'pathname'
+require 'fileutils'
 require 'cordova_plugin_swift'
 
 PLATFORM_DIR = Pathname.pwd.realpath
