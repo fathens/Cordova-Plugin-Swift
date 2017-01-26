@@ -3,6 +3,7 @@ $LOAD_PATH.push File.expand_path("../../lib", __FILE__)
 
 require 'pathname'
 require 'fileutils'
+require 'rexml/document'
 require 'cordova_plugin_swift'
 
 PLATFORM_DIR = Pathname.pwd.realpath
@@ -48,6 +49,9 @@ when "generate" then
   generate
 when "clean" then
   clean
+when "--version" then
+  plugin_xml = File.expand_path("../../plugin.xml", __FILE__)
+  puts REXML::Document.new(File.open(plugin_xml)).get_elements('/plugin').first.attributes['version']
 else
   puts "Unknown command: #{cmd}"
 end
