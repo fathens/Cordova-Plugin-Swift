@@ -4,10 +4,10 @@ $LOAD_PATH.push File.expand_path("../../lib", __FILE__)
 require 'pathname'
 require 'cordova_plugin_swift'
 
-def generate
-  PLATFORM_DIR = Pathname.pwd
-  PLUGIN_DIR = PLATFORM_DIR.dirname.dirname
+PLATFORM_DIR = Pathname.pwd.realpath
+PLUGIN_DIR = PLATFORM_DIR.dirname.dirname
 
+def generate
   podfile = Podfile.from_pluginxml(PLUGIN_DIR/'plugin.xml')
   podfile.pods.unshift Pod.new(name: 'Cordova')
   podfile.swift_version ||= '3.0'
@@ -35,7 +35,7 @@ def generate
 end
 
 def clean
-  ["*.xc*", "Pod*", ".Bridging-Header.h"].each { |ptn|
+  [PLATFORM_DIR/"*.xc*", PLATFORM_DIR/"Pod*", PLATFORM_DIR/".Bridging-Header.h"].each { |ptn|
     Pathname.glob(ptn).each { |x| FileUtils.rm_rf x }
   }
 end
