@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
     s.email    = "devel@fathens.org"
     s.homepage = "http://fathens.org"
 
-    s.files        = Dir["lib/**/*"] + Dir["bin/*"]
+    s.files        = Dir["lib/**/*"] + Dir["bin/*"] + ['plugin.xml']
     s.bindir = "bin"
     s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
