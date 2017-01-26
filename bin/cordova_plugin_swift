@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+
+require 'pathname'
+require 'fileutils'
+require 'cordova_plugin_swift'
+
+PLATFORM_DIR = Pathname.pwd.realpath
+PLUGIN_DIR = PLATFORM_DIR.dirname.dirname
+
+def generate
+  podfile = Podfile.from_pluginxml(PLUGIN_DIR/'plugin.xml')
+  podfile.pods.unshift Pod.new(name: 'Cordova')
+  podfile.swift_version ||= '3.0'
+  podfile.ios_version ||= '10.0'
+
+  bridge_file = PLATFORM_DIR/".Bridging-Header.h"
+  File.open(bridge_file, 'w') { |dst|
+      dst.puts "#import <Cordova/CDV.h>"
+      dst.puts podfile.pods.map {|p| p.bridging_headers }.flatten
+  }
+
+  proj = XcodeProject.new
+  proj.sources_pattern = "src/*.swift"
+  proj.build_settings = {
+      "SWIFT_OBJC_BRIDGING_HEADER" => bridge_file ? bridge_file.relative_path_from(PLATFORM_DIR) : nil,
+      "SWIFT_VERSION" => podfile.swift_version,
+      "ENABLE_BITCODE" => "NO"
+  }
+
+  target_name = proj.write("CordovaPlugin_#{PLUGIN_DIR.basename}")
+  podfile.write(PLATFORM_DIR/'Podfile', target_name)
+
+  log_header "pod install"
+  system "pod install"
+end
+
+def clean
+  [PLATFORM_DIR/"*.xc*", PLATFORM_DIR/"Pod*", PLATFORM_DIR/".Bridging-Header.h"].each { |ptn|
+    Pathname.glob(ptn).each { |x| FileUtils.rm_rf x }
+  }
+end
+
+cmd = ARGV[0]
+
+case cmd
+when "generate" then
+  generate
+when "clean" then
+  clean
+else
+  puts "Unknown command: #{cmd}"
+end
