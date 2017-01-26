@@ -19,8 +19,8 @@ Gem::Specification.new do |s|
     s.bindir = "bin"
     s.executables = s.files.grep(%r{^bin/}) { |f| File.basename(f) }
 
-    s.add_runtime_dependency 'cocoapods'
-    s.add_runtime_dependency 'xcodeproj'
+    s.add_runtime_dependency 'cocoapods', '~> 1.1.1'
+    s.add_runtime_dependency 'xcodeproj', '~> 1.4.2'
 
     s.add_development_dependency "bundler", "~> 1.13"
     s.add_development_dependency "rake", "~> 10.0"
