@@ -9,6 +9,17 @@ require 'cordova_plugin_swift'
 PLATFORM_DIR = Pathname.pwd.realpath
 PLUGIN_DIR = PLATFORM_DIR.dirname.dirname
 
+def gitignore
+  target = PLATFORM_DIR/'.gitignore'
+  target.write <<~EOF
+  /*.xcodeproj/
+  /*.xcworkspace/
+  /Pods/
+  /Podfile
+  /*.lock
+  EOF
+end
+
 def generate
   podfile = Podfile.from_pluginxml(PLUGIN_DIR/'plugin.xml')
   podfile.pods.unshift Pod.new(name: 'Cordova')
@@ -46,6 +57,7 @@ cmd = ARGV[0]
 
 case cmd
 when "generate" then
+  gitignore
   generate
 when "clean" then
   clean
